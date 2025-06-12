@@ -8,9 +8,10 @@ pub fn camera_follow_player(
 ) {
     if let Ok(player_transform) = player_query.single() {
         if let Ok(mut camera_transform) = camera_query.single_mut() {
-            // Smoothly follow the player
             let target_position = player_transform.translation;
-            camera_transform.translation = camera_transform.translation.lerp(target_position, 0.1);
+            
+            // Keep camera tightly centered on player with very fast following
+            camera_transform.translation = camera_transform.translation.lerp(target_position, 0.8);
         }
     }
 }

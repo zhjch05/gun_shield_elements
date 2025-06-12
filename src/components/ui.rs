@@ -31,3 +31,7 @@ pub enum PauseButton {
     BackToMenu,
     ExitToDesktop,
 }
+
+/// Marker component for debug-specific entities that should be cleaned up on exit
+#[derive(Component)]
+pub struct DebugEntity;

@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Don't need to run cargo clippy for rust. Make sure you are using latest APIs from bevy 0.16 exactly. Rigorously follow Bevy ECS best practice and project's directory structure to decouple everything into smaller files categorized. When resolving warnings never use allow dead code macro, instead remove the unused code. Before completing the task or after you finished planning, use the MCP mcp-feedback-enhanced to ask the user for feedback.
