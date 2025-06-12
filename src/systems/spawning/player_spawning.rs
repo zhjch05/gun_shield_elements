@@ -28,7 +28,7 @@ pub fn spawn_player(
     ));
     
     // Spawn player with proper positioning and debug marker
-    commands.spawn((
+    let player_entity = commands.spawn((
         PlayerBundle::new(
             100.0,                                    // max health
             300.0,                                    // speed
@@ -37,24 +37,26 @@ pub fn spawn_player(
             player_material,
         ),
         DebugEntity, // Mark as debug entity for cleanup
-    ));
+    )).id();
     
-    // Spawn direction indicator
-    commands.spawn((
-        DirectionIndicatorBundle::new(
-            indicator_mesh,
-            indicator_material,
-        ),
-        DebugEntity, // Mark as debug entity for cleanup
-    ));
+    // Spawn direction indicator as a child of the player
+    commands.entity(player_entity).with_children(|parent| {
+        parent.spawn((
+            DirectionIndicatorBundle::new(
+                indicator_mesh,
+                indicator_material,
+            ),
+            DebugEntity, // Mark as debug entity for cleanup
+        ));
+    });
     
-    info!("Player spawned in debug mode at position (0, 0) with center marker and direction indicator");
+    info!("Player spawned in debug mode at position (0, 0) with center marker and direction indicator as child");
 }
 
 /// System to clean up player entities
 pub fn cleanup_player(mut commands: Commands, player_query: Query<Entity, With<Player>>) {
     for entity in &player_query {
-        commands.entity(entity).despawn();
+        commands.entity(entity).despawn(); // Automatically despawns children
     }
     info!("Player entities cleaned up");
 }

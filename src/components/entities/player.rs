@@ -55,7 +55,7 @@ impl DirectionIndicatorBundle {
     ) -> Self {
         Self {
             indicator: DirectionIndicator,
-            transform: Transform::from_translation(Vec3::new(32.0, 0.0, 1.1)), // Position closer to player circle
+            transform: Transform::from_translation(Vec3::new(32.0, 0.0, 0.1)), // Local position relative to parent player (25.0 radius + 7.0 gap)
             mesh: Mesh2d(mesh),
             material: MeshMaterial2d(material),
         }

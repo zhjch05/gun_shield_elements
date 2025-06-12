@@ -53,14 +53,25 @@ pub fn player_face_mouse(
                         let angle = direction.y.atan2(direction.x);
                         player_transform.rotation = Quat::from_rotation_z(angle);
                         
-                        // Update direction indicator position relative to player
+                        // Update direction indicator position relative to player (as child entity)
                         if let Ok(mut indicator_transform) = indicator_query.single_mut() {
-                            // Position the indicator 30 pixels away from player center in the facing direction
-                            let indicator_offset = direction * 32.0;
+                            // Position the indicator at a constant distance from player edge
+                            // Player radius is 25.0, add gap from edge
+                            let player_radius = 25.0;
+                            let gap_from_edge = 7.0; // Increased gap for better visibility
+                            let distance_from_center = player_radius + gap_from_edge;
+                            
+                            // Since the player rotates, but we want the indicator to point in world direction,
+                            // we need to counter-rotate the local position by the player's rotation
+                            let inverse_rotation = player_transform.rotation.inverse();
+                            let world_direction = Vec3::new(direction.x, direction.y, 0.0);
+                            let local_direction = inverse_rotation * world_direction;
+                            
+                            // Set local position relative to parent (player)
                             indicator_transform.translation = Vec3::new(
-                                player_position.x + indicator_offset.x,
-                                player_position.y + indicator_offset.y,
-                                1.1 // Slightly above player
+                                local_direction.x * distance_from_center,
+                                local_direction.y * distance_from_center,
+                                0.1 // Slightly above parent
                             );
                         }
                     }
