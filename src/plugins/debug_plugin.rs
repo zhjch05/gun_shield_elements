@@ -4,7 +4,7 @@ use crate::components::{DebugUI, PauseOverlayUI, Player};
 use crate::systems::{
     cleanup_ui, handle_pause_input, update_pause_timer,
     spawn_pause_overlay, despawn_pause_overlay, handle_pause_buttons, button_hover_system,
-    reset_pause_state, spawn_player, player_movement, camera_follow_player, cleanup_player, cleanup_debug_entities
+    reset_pause_state, spawn_player, player_movement, player_face_mouse, camera_follow_player, cleanup_player, cleanup_debug_entities
 };
 
 pub struct DebugPlugin;
@@ -23,6 +23,7 @@ impl Plugin for DebugPlugin {
                     handle_pause_buttons,
                     button_hover_system,
                     player_movement,
+                    player_face_mouse,
                     camera_follow_player,
                     update_debug_info,
                 ).run_if(in_state(AppState::Debug)),
@@ -57,7 +58,7 @@ fn setup_debug_screen(mut commands: Commands) {
 
     // Debug info display
     commands.spawn((
-        Text::new("Debug Mode\nUse WASD to move\nESC to pause\nPlayer: Bright cyan circle\nCenter marker: Red circle at (0,0)"),
+        Text::new("Debug Mode\nUse WASD to move\nMove mouse to aim\nESC to pause\nPlayer: White circle (rotates to face mouse)\nDirection indicator: Small white circle\nCenter marker: Red circle at (0,0)"),
         TextFont {
             font_size: 20.0,
             ..default()
@@ -85,9 +86,10 @@ fn update_debug_info(
     if let Ok(player_transform) = player_query.single() {
         if let Ok(mut text) = debug_text_query.single_mut() {
             let pos = player_transform.translation;
+            let rotation_degrees = player_transform.rotation.to_euler(EulerRot::ZYX).0.to_degrees();
             **text = format!(
-                "Debug Mode\nUse WASD to move\nESC to pause\nPlayer: Bright cyan circle\nCenter marker: Red circle at (0,0)\nPlayer Position: ({:.1}, {:.1})",
-                pos.x, pos.y
+                "Debug Mode\nUse WASD to move\nMove mouse to aim\nESC to pause\nPlayer: White circle (rotates to face mouse)\nDirection indicator: Small white circle\nCenter marker: Red circle at (0,0)\nPlayer Position: ({:.1}, {:.1})\nPlayer Rotation: {:.1}°",
+                pos.x, pos.y, rotation_degrees
             );
         }
     }

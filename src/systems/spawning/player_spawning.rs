@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::components::{Player, PlayerBundle, DebugEntity};
+use crate::components::{Player, PlayerBundle, DebugEntity, DirectionIndicatorBundle};
 
 /// System to spawn the player in debug mode
 pub fn spawn_player(
@@ -14,6 +14,10 @@ pub fn spawn_player(
     // Create center marker
     let marker_mesh = meshes.add(Circle::new(8.0)); // Small circle for center marker
     let marker_material = materials.add(Color::srgb(1.0, 0.2, 0.2)); // Bright red
+    
+    // Create direction indicator
+    let indicator_mesh = meshes.add(Circle::new(4.0)); // Tiny white circle
+    let indicator_material = materials.add(Color::WHITE); // White color for direction indicator
     
     // Spawn center marker at origin
     commands.spawn((
@@ -35,7 +39,16 @@ pub fn spawn_player(
         DebugEntity, // Mark as debug entity for cleanup
     ));
     
-    info!("Player spawned in debug mode at position (0, 0) with center marker");
+    // Spawn direction indicator
+    commands.spawn((
+        DirectionIndicatorBundle::new(
+            indicator_mesh,
+            indicator_material,
+        ),
+        DebugEntity, // Mark as debug entity for cleanup
+    ));
+    
+    info!("Player spawned in debug mode at position (0, 0) with center marker and direction indicator");
 }
 
 /// System to clean up player entities
