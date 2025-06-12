@@ -16,7 +16,7 @@ pub fn spawn_player(
     let marker_material = materials.add(Color::srgb(1.0, 0.2, 0.2)); // Bright red
     
     // Create direction indicator
-    let indicator_mesh = meshes.add(Circle::new(4.0)); // Tiny white circle
+    let indicator_mesh = meshes.add(Circle::new(2.0)); // Diameter 4.0 to match shield thickness
     let indicator_material = materials.add(Color::WHITE); // White color for direction indicator
     
     // Create shield (starts with empty mesh, will be generated dynamically)

@@ -31,21 +31,28 @@ pub fn handle_shield_input(
 pub fn animate_shield(
     time: Res<Time>,
     mut shield_query: Query<&mut Shield>,
+    mut indicator_query: Query<&mut Visibility, With<DirectionIndicator>>,
 ) {
     for mut shield in &mut shield_query {
         if shield.is_active || shield.length > 0.0 {
             let delta = time.delta_secs() * shield.animation_speed;
             
             if shield.length < shield.target_length {
-                // Growing
+                // Growing - ensure direction indicator is hidden
                 shield.length = (shield.length + delta).min(shield.target_length);
+                if let Ok(mut visibility) = indicator_query.single_mut() {
+                    *visibility = Visibility::Hidden;
+                }
             } else if shield.length > shield.target_length {
                 // Shrinking
                 shield.length = (shield.length - delta).max(shield.target_length);
                 
-                // Deactivate when fully shrunk
+                // Deactivate when fully shrunk and show direction indicator
                 if shield.length <= 0.0 {
                     shield.is_active = false;
+                    if let Ok(mut visibility) = indicator_query.single_mut() {
+                        *visibility = Visibility::Visible;
+                    }
                 }
             }
         }
@@ -58,7 +65,6 @@ pub fn update_shield_mesh(
     shield_query: Query<(&Shield, &Mesh2d), Changed<Shield>>,
     player_query: Query<&Transform, (With<Player>, Without<DirectionIndicator>)>,
     indicator_query: Query<&Transform, (With<DirectionIndicator>, Without<Player>)>,
-    mut indicator_visibility_query: Query<&mut Visibility, With<DirectionIndicator>>,
 ) {
     if let Ok(_player_transform) = player_query.single() {
         if let Ok(indicator_transform) = indicator_query.single() {
@@ -72,10 +78,9 @@ pub fn update_shield_mesh(
                     let mesh = create_shield_arc_mesh(shield.length, center_angle);
                     meshes.insert(&mesh_handle.0, mesh);
                 } else {
-                    // Show direction indicator when shield is fully deactivated
-                    if let Ok(mut visibility) = indicator_visibility_query.single_mut() {
-                        *visibility = Visibility::Visible;
-                    }
+                    // Clear the mesh when shield length is 0 or less
+                    let empty_mesh = create_empty_mesh();
+                    meshes.insert(&mesh_handle.0, empty_mesh);
                 }
             }
         }
@@ -85,8 +90,9 @@ pub fn update_shield_mesh(
 /// Create a mesh for the shield arc centered on the direction indicator
 fn create_shield_arc_mesh(length: f32, center_angle: f32) -> Mesh {
     let player_radius = 25.0;
-    let shield_thickness = 4.0;
-    let shield_radius = player_radius + 10.0; // Slightly outside player circle
+    let shield_thickness = 4.0; // Reduced back to 4.0
+    let gap_from_edge = 7.0; // Same as direction indicator positioning
+    let shield_radius = player_radius + gap_from_edge; // 32.0 - same as direction indicator distance
     
     // Calculate arc parameters - arc grows equally in both directions from center
     let total_arc_length = length * 2.0 * PI; // Full circle when length = 1.0
@@ -146,6 +152,22 @@ fn create_shield_arc_mesh(length: f32, center_angle: f32) -> Mesh {
     mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, normals);
     mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, uvs);
     mesh.insert_indices(bevy::render::mesh::Indices::U32(indices));
+    
+    mesh
+}
+
+/// Create an empty mesh to clear the shield when not active
+fn create_empty_mesh() -> Mesh {
+    let mut mesh = Mesh::new(
+        bevy::render::render_resource::PrimitiveTopology::TriangleList,
+        bevy::render::render_asset::RenderAssetUsages::MAIN_WORLD | bevy::render::render_asset::RenderAssetUsages::RENDER_WORLD,
+    );
+    
+    // Empty vertices, indices, normals, and UVs
+    mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, Vec::<[f32; 3]>::new());
+    mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, Vec::<[f32; 3]>::new());
+    mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, Vec::<[f32; 2]>::new());
+    mesh.insert_indices(bevy::render::mesh::Indices::U32(Vec::<u32>::new()));
     
     mesh
 } 
