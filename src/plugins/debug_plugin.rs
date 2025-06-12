@@ -4,7 +4,7 @@ use crate::components::{DebugUI, PauseOverlayUI};
 use crate::systems::{
     cleanup_ui, handle_pause_input, update_pause_timer,
     spawn_pause_overlay, despawn_pause_overlay, handle_pause_buttons, button_hover_system,
-    reset_pause_state
+    reset_pause_state, spawn_player, player_movement, camera_follow_player, cleanup_player
 };
 use crate::constants::AppColors;
 
@@ -13,7 +13,7 @@ pub struct DebugPlugin;
 impl Plugin for DebugPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_systems(OnEnter(AppState::Debug), setup_debug_screen)
+            .add_systems(OnEnter(AppState::Debug), (setup_debug_screen, spawn_player))
             .add_systems(
                 Update,
                 (
@@ -23,11 +23,14 @@ impl Plugin for DebugPlugin {
                     despawn_pause_overlay,
                     handle_pause_buttons,
                     button_hover_system,
+                    player_movement,
+                    camera_follow_player,
                 ).run_if(in_state(AppState::Debug)),
             )
             .add_systems(OnExit(AppState::Debug), (
                 cleanup_ui::<DebugUI>,
                 cleanup_ui::<PauseOverlayUI>,
+                cleanup_player,
                 reset_pause_state,
             ));
     }
