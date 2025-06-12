@@ -1,5 +1,7 @@
-mod ui;
-mod player;
+pub mod ui;
+pub mod attributes;
+pub mod entities;
 
 pub use ui::*;
-pub use player::*;
+pub use attributes::*;
+pub use entities::*;

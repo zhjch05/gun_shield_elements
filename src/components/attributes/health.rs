@@ -1,11 +1,7 @@
 use bevy::prelude::*;
 
-/// Marker component for the player entity
-#[derive(Component)]
-pub struct Player;
-
-/// Component for player health
-#[derive(Component)]
+/// Component for entity health
+#[derive(Component, Debug, Clone)]
 pub struct Health {
     pub current: f32,
     pub max: f32,
@@ -38,32 +34,12 @@ impl Health {
             0.0
         }
     }
-}
-
-/// Component for player movement speed
-#[derive(Component)]
-pub struct Speed {
-    pub value: f32,
-}
-
-impl Speed {
-    pub fn new(speed: f32) -> Self {
-        Self { value: speed }
+    
+    pub fn is_full(&self) -> bool {
+        self.current >= self.max
     }
-}
-
-/// Bundle for player stats
-#[derive(Bundle)]
-pub struct PlayerStatsBundle {
-    pub health: Health,
-    pub speed: Speed,
-}
-
-impl PlayerStatsBundle {
-    pub fn new(max_health: f32, speed: f32) -> Self {
-        Self {
-            health: Health::new(max_health),
-            speed: Speed::new(speed),
-        }
+    
+    pub fn is_critical(&self, threshold: f32) -> bool {
+        self.health_percentage() <= threshold
     }
 }

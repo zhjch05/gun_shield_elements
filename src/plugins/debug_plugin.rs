@@ -36,16 +36,20 @@ impl Plugin for DebugPlugin {
     }
 }
 
-/// System to setup the debug screen UI (completely empty)
+/// System to setup the debug screen UI
 fn setup_debug_screen(mut commands: Commands) {
-    // Empty debug screen - no UI elements
+    // Background UI node with lower z-index to not interfere with game entities
     commands.spawn((
         Node {
             width: Val::Percent(100.0),
             height: Val::Percent(100.0),
+            position_type: PositionType::Absolute,
             ..default()
         },
         BackgroundColor(AppColors::BACKGROUND),
+        ZIndex(-1), // Behind game entities
         DebugUI,
     ));
+
+    info!("Debug screen setup complete");
 }
