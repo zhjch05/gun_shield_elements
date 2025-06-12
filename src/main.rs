@@ -8,6 +8,7 @@ mod resources;
 
 use states::AppState;
 use plugins::{MenuPlugin, GamePlugin, DebugPlugin};
+use resources::PauseState;
 
 fn main() {
     App::new()
@@ -20,6 +21,7 @@ fn main() {
             ..default()
         }))
         .init_state::<AppState>()
+        .init_resource::<PauseState>()
         .add_plugins((
             MenuPlugin,
             GamePlugin,

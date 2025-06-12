@@ -8,13 +8,6 @@ pub struct PauseState {
 }
 
 impl PauseState {
-    pub fn new() -> Self {
-        Self {
-            is_paused: false,
-            pause_timer: Timer::from_seconds(0.0, TimerMode::Once),
-        }
-    }
-
     pub fn pause(&mut self) {
         self.is_paused = true;
         self.pause_timer.reset();

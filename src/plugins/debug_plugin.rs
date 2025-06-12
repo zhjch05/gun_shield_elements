@@ -1,7 +1,11 @@
 use bevy::prelude::*;
 use crate::states::AppState;
-use crate::components::DebugUI;
-use crate::systems::cleanup_ui;
+use crate::components::{DebugUI, PauseOverlayUI};
+use crate::systems::{
+    cleanup_ui, handle_pause_input, update_pause_timer,
+    spawn_pause_overlay, despawn_pause_overlay, handle_pause_buttons, button_hover_system,
+    reset_pause_state
+};
 
 pub struct DebugPlugin;
 
@@ -9,7 +13,22 @@ impl Plugin for DebugPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(OnEnter(AppState::Debug), setup_debug_screen)
-            .add_systems(OnExit(AppState::Debug), cleanup_ui::<DebugUI>);
+            .add_systems(
+                Update,
+                (
+                    handle_pause_input,
+                    update_pause_timer,
+                    spawn_pause_overlay,
+                    despawn_pause_overlay,
+                    handle_pause_buttons,
+                    button_hover_system,
+                ).run_if(in_state(AppState::Debug)),
+            )
+            .add_systems(OnExit(AppState::Debug), (
+                cleanup_ui::<DebugUI>,
+                cleanup_ui::<PauseOverlayUI>,
+                reset_pause_state,
+            ));
     }
 }
 

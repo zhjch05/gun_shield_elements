@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use crate::states::AppState;
 use crate::components::{GameUI, PauseOverlayUI};
-use crate::resources::PauseState;
 use crate::systems::{
     cleanup_ui, handle_pause_input, update_pause_timer,
     spawn_pause_overlay, despawn_pause_overlay, handle_pause_buttons, button_hover_system,
@@ -13,7 +12,6 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app
-            .init_resource::<PauseState>()
             .add_systems(OnEnter(AppState::Game), setup_game_screen)
             .add_systems(
                 Update,
