@@ -8,6 +8,7 @@ pub struct MenuPlugin;
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
         app
+            .add_systems(Startup, setup_camera)
             .add_systems(OnEnter(AppState::MainMenu), setup_main_menu)
             .add_systems(
                 Update,
@@ -15,6 +16,11 @@ impl Plugin for MenuPlugin {
             )
             .add_systems(OnExit(AppState::MainMenu), cleanup_ui::<MainMenuUI>);
     }
+}
+
+/// System to setup the camera
+fn setup_camera(mut commands: Commands) {
+    commands.spawn(Camera2d);
 }
 
 /// System to setup the main menu UI
@@ -57,13 +63,13 @@ fn setup_main_menu(mut commands: Commands) {
                 })
                 .with_children(|parent| {
                     // Start Game button
-                    create_button_with_component(parent, "Start Game", 24.0, MenuButton::StartGame);
+                    create_button_with_component(parent, "Start Game", 32.0, MenuButton::StartGame);
 
                     // Debug Mode button
-                    create_button_with_component(parent, "Debug Mode", 24.0, MenuButton::DebugMode);
+                    create_button_with_component(parent, "Debug Mode", 32.0, MenuButton::DebugMode);
 
                     // Exit to Desktop button
-                    create_button_with_component(parent, "Exit to Desktop", 24.0, MenuButton::ExitToDesktop);
+                    create_button_with_component(parent, "Exit to Desktop", 32.0, MenuButton::ExitToDesktop);
                 });
         });
 }

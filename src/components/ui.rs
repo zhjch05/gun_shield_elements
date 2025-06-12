@@ -31,3 +31,15 @@ pub enum DebugButton {
 pub enum GameButton {
     BackToMenu,
 }
+
+/// Marker component for pause overlay UI
+#[derive(Component)]
+pub struct PauseOverlayUI;
+
+/// Component to identify different pause menu buttons
+#[derive(Component)]
+pub enum PauseButton {
+    Resume,
+    BackToMenu,
+    ExitToDesktop,
+}

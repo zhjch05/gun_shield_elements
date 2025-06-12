@@ -18,11 +18,11 @@ pub fn create_button_with_component<T: Component>(
         .spawn((
             Button,
             Node {
-                width: Val::Px(200.0),
-                height: Val::Px(50.0),
+                width: Val::Px(350.0),
+                height: Val::Px(80.0),
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
-                margin: UiRect::all(Val::Px(10.0)),
+                margin: UiRect::all(Val::Px(15.0)),
                 ..default()
             },
             BackgroundColor(Color::srgb(0.2, 0.2, 0.2)),
