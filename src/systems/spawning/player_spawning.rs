@@ -9,7 +9,7 @@ pub fn spawn_player(
 ) {
     // Create mesh and material with better visibility
     let player_mesh = meshes.add(Circle::new(25.0)); // Slightly larger for better visibility
-    let player_material = materials.add(Color::srgb(0.0, 0.8, 1.0)); // Bright cyan for high contrast
+    let player_material = materials.add(Color::WHITE); // White color for player
     
     // Create center marker
     let marker_mesh = meshes.add(Circle::new(8.0)); // Small circle for center marker
