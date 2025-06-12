@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use crate::states::AppState;
 use crate::components::{MainMenuUI, MenuButton};
 use crate::systems::{handle_menu_buttons, button_hover_system, cleanup_ui, create_button_with_component};
+use crate::constants::AppColors;
 
 pub struct MenuPlugin;
 
@@ -36,7 +37,7 @@ fn setup_main_menu(mut commands: Commands) {
                 align_items: AlignItems::Center,
                 ..default()
             },
-            BackgroundColor(Color::srgb(0.1, 0.1, 0.15)),
+            BackgroundColor(AppColors::BACKGROUND),
             MainMenuUI,
         ))
         .with_children(|parent| {

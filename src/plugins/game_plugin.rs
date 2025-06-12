@@ -6,6 +6,7 @@ use crate::systems::{
     spawn_pause_overlay, despawn_pause_overlay, handle_pause_buttons, button_hover_system,
     reset_pause_state
 };
+use crate::constants::AppColors;
 
 pub struct GamePlugin;
 
@@ -41,7 +42,7 @@ fn setup_game_screen(mut commands: Commands) {
             height: Val::Percent(100.0),
             ..default()
         },
-        BackgroundColor(Color::srgb(0.05, 0.1, 0.05)),
+        BackgroundColor(AppColors::BACKGROUND),
         GameUI,
     ));
 }

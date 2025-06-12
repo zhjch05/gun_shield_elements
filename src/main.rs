@@ -5,6 +5,7 @@ mod plugins;
 mod components;
 mod systems;
 mod resources;
+mod constants;
 
 use states::AppState;
 use plugins::{MenuPlugin, GamePlugin, DebugPlugin};
