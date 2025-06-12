@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::components::{Player, PlayerBundle, DebugEntity, DirectionIndicatorBundle};
+use crate::components::{Player, PlayerBundle, DebugEntity, DirectionIndicatorBundle, ShieldBundle};
 
 /// System to spawn the player in debug mode
 pub fn spawn_player(
@@ -18,6 +18,10 @@ pub fn spawn_player(
     // Create direction indicator
     let indicator_mesh = meshes.add(Circle::new(4.0)); // Tiny white circle
     let indicator_material = materials.add(Color::WHITE); // White color for direction indicator
+    
+    // Create shield (starts with empty mesh, will be generated dynamically)
+    let shield_mesh = meshes.add(Circle::new(0.0)); // Empty mesh initially
+    let shield_material = materials.add(Color::WHITE); // White shield color
     
     // Spawn center marker at origin
     commands.spawn((
@@ -39,8 +43,9 @@ pub fn spawn_player(
         DebugEntity, // Mark as debug entity for cleanup
     )).id();
     
-    // Spawn direction indicator as a child of the player
+    // Spawn direction indicator and shield as children of the player
     commands.entity(player_entity).with_children(|parent| {
+        // Direction indicator
         parent.spawn((
             DirectionIndicatorBundle::new(
                 indicator_mesh,
@@ -48,9 +53,18 @@ pub fn spawn_player(
             ),
             DebugEntity, // Mark as debug entity for cleanup
         ));
+        
+        // Shield
+        parent.spawn((
+            ShieldBundle::new(
+                shield_mesh,
+                shield_material,
+            ),
+            DebugEntity, // Mark as debug entity for cleanup
+        ));
     });
     
-    info!("Player spawned in debug mode at position (0, 0) with center marker and direction indicator as child");
+    info!("Player spawned in debug mode at position (0, 0) with center marker, direction indicator, and shield as children");
 }
 
 /// System to clean up player entities
