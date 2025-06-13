@@ -1,13 +1,24 @@
 use bevy::prelude::*;
-use crate::components::{BoundedMovement, BoundaryVisual, EdgeWarning, EdgeType, Player};
+use crate::components::{BoundedMovement, BoundaryVisual, EdgeWarning, EdgeType, Player, PlayerDash};
 use crate::constants::{GameBoundaries, AppColors};
 
 /// System to enforce boundary constraints on all bounded entities
 pub fn enforce_boundaries(
-    mut bounded_query: Query<&mut Transform, With<BoundedMovement>>,
+    mut bounded_query: Query<(&mut Transform, Option<&mut PlayerDash>), With<BoundedMovement>>,
 ) {
-    for mut transform in bounded_query.iter_mut() {
-        transform.translation = GameBoundaries::clamp_position(transform.translation);
+    for (mut transform, dash_opt) in bounded_query.iter_mut() {
+        let original_pos = transform.translation;
+        let clamped_pos = GameBoundaries::clamp_position(original_pos);
+        
+        // If position was clamped and this is a player with dash, end the dash to prevent getting stuck
+        if original_pos != clamped_pos {
+            if let Some(mut dash) = dash_opt {
+                if dash.is_dashing {
+                    dash.is_dashing = false; // End dash when hitting boundary
+                }
+            }
+            transform.translation = clamped_pos;
+        }
     }
 }
 
