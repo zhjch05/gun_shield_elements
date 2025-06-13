@@ -48,10 +48,4 @@ impl GameBoundaries {
             position.z
         )
     }
-    
-    /// Check if a position is within boundaries
-    pub fn is_within_bounds(position: Vec3) -> bool {
-        position.x >= Self::min_x() && position.x <= Self::max_x() &&
-        position.y >= Self::min_y() && position.y <= Self::max_y()
-    }
 } 

@@ -10,7 +10,8 @@ use crate::systems::{
     player_movement, player_face_mouse, camera_follow_player, manage_player_invulnerability,
     spawn_mine_boss, cleanup_boss_entities,
     mine_boss_ai, boss_dash_movement, boss_rotation_animation, boss_player_collision,
-    spawn_boundary_visuals, enforce_boundaries, cleanup_boundary_visuals
+    spawn_boundary_visuals, enforce_boundaries, cleanup_boundary_visuals,
+    spawn_edge_warnings, update_edge_warnings, cleanup_edge_warnings
 };
 
 
@@ -19,7 +20,7 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_systems(OnEnter(AppState::Game), (setup_game_screen, spawn_boundary_visuals, spawn_health_bar, spawn_energy_bar, spawn_player, spawn_mine_boss))
+            .add_systems(OnEnter(AppState::Game), (setup_game_screen, spawn_boundary_visuals, spawn_edge_warnings, spawn_health_bar, spawn_energy_bar, spawn_player, spawn_mine_boss))
             .add_systems(
                 Update,
                 (
@@ -45,6 +46,7 @@ impl Plugin for GamePlugin {
                     update_health_bar_color,
                     update_energy_bar,
                     update_energy_bar_color,
+                    update_edge_warnings, // Update edge warning intensity
                     check_player_death,
                 ).run_if(in_state(AppState::Game)),
             )
@@ -57,6 +59,7 @@ impl Plugin for GamePlugin {
                 cleanup_boss_entities,
                 cleanup_debug_entities,
                 cleanup_boundary_visuals,
+                cleanup_edge_warnings,
                 reset_pause_state,
             ));
     }

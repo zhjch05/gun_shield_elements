@@ -9,7 +9,8 @@ use crate::systems::{
     mine_boss_ai, boss_dash_movement, boss_rotation_animation, boss_player_collision, boss_collision_damage,
     spawn_health_bar, update_health_bar, update_health_bar_color, check_player_death,
     spawn_energy_bar, update_energy_bar, update_energy_bar_color, manage_player_invulnerability,
-    spawn_boundary_visuals, enforce_boundaries, cleanup_boundary_visuals
+    spawn_boundary_visuals, enforce_boundaries, cleanup_boundary_visuals,
+    spawn_edge_warnings, update_edge_warnings, cleanup_edge_warnings
 };
 
 pub struct DebugPlugin;
@@ -17,7 +18,7 @@ pub struct DebugPlugin;
 impl Plugin for DebugPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_systems(OnEnter(AppState::Debug), (setup_debug_screen, spawn_boundary_visuals, spawn_player, spawn_mine_boss, spawn_health_bar, spawn_energy_bar))
+            .add_systems(OnEnter(AppState::Debug), (setup_debug_screen, spawn_boundary_visuals, spawn_edge_warnings, spawn_player, spawn_mine_boss, spawn_health_bar, spawn_energy_bar))
             .add_systems(
                 Update,
                 (
@@ -63,6 +64,7 @@ impl Plugin for DebugPlugin {
                     update_health_bar_color,
                     update_energy_bar,
                     update_energy_bar_color,
+                    update_edge_warnings, // Update edge warning intensity
                     check_player_death,
                     update_debug_info,
                 ).run_if(in_state(AppState::Debug)),
@@ -76,6 +78,7 @@ impl Plugin for DebugPlugin {
                 cleanup_boss_entities,
                 cleanup_debug_entities,
                 cleanup_boundary_visuals,
+                cleanup_edge_warnings,
                 reset_pause_state,
             ));
     }

@@ -6,4 +6,19 @@ pub struct BoundedMovement;
 
 /// Component for the visual boundary system
 #[derive(Component, Debug)]
-pub struct BoundaryVisual; 
+pub struct BoundaryVisual;
+
+/// Component for edge warning UI elements
+#[derive(Component, Debug)]
+pub struct EdgeWarning {
+    pub edge: EdgeType,
+}
+
+/// Enum to specify which edge the warning is for
+#[derive(Debug, Clone, Copy)]
+pub enum EdgeType {
+    Top,
+    Bottom,
+    Left,
+    Right,
+} 
