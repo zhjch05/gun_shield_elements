@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::components::{Player, PlayerBundle, DebugEntity, DirectionIndicatorBundle, ShieldBundle};
+use crate::components::{Player, PlayerBundle, DebugEntity, DirectionIndicatorBundle, ShieldBundle, WeaponBundle};
 
 /// System to spawn the player in debug mode
 pub fn spawn_player(
@@ -43,7 +43,7 @@ pub fn spawn_player(
         DebugEntity, // Mark as debug entity for cleanup
     )).id();
     
-    // Spawn direction indicator and shield as children of the player
+    // Spawn direction indicator, shield, and weapon as children of the player
     commands.entity(player_entity).with_children(|parent| {
         // Direction indicator
         parent.spawn((
@@ -59,6 +59,16 @@ pub fn spawn_player(
             ShieldBundle::new(
                 shield_mesh,
                 shield_material,
+            ),
+            DebugEntity, // Mark as debug entity for cleanup
+        ));
+        
+        // Weapon - Default gun in debug mode
+        parent.spawn((
+            WeaponBundle::new(
+                5.0, // 5 shots per second
+                10.0, // 10 damage per shot
+                400.0, // 400 units per second projectile speed
             ),
             DebugEntity, // Mark as debug entity for cleanup
         ));

@@ -8,6 +8,7 @@ pub mod boss_systems;
 pub mod ui;
 pub mod player_death;
 pub mod boundary;
+pub mod weapon_systems;
 
 pub use menu_systems::*;
 pub use ui_systems::*;
@@ -19,3 +20,4 @@ pub use boss_systems::*;
 pub use ui::*;
 pub use player_death::*;
 pub use boundary::*;
+pub use weapon_systems::*;

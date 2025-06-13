@@ -10,7 +10,8 @@ use crate::systems::{
     spawn_health_bar, update_health_bar, update_health_bar_color, check_player_death,
     spawn_energy_bar, update_energy_bar, update_energy_bar_color, manage_player_invulnerability,
     spawn_boundary_visuals, enforce_boundaries, cleanup_boundary_visuals,
-    spawn_edge_warnings, update_edge_warnings, cleanup_edge_warnings
+    spawn_edge_warnings, update_edge_warnings, cleanup_edge_warnings,
+    weapon_firing_system, projectile_movement_system, projectile_lifetime_system, projectile_boss_collision_system, cleanup_projectiles
 };
 
 pub struct DebugPlugin;
@@ -48,6 +49,16 @@ impl Plugin for DebugPlugin {
             .add_systems(
                 Update,
                 (
+                    // Weapon systems
+                    weapon_firing_system,
+                    projectile_movement_system,
+                    projectile_lifetime_system,
+                    projectile_boss_collision_system,
+                ).run_if(in_state(AppState::Debug)),
+            )
+            .add_systems(
+                Update,
+                (
                     // Boss systems
                     mine_boss_ai,
                     boss_dash_movement,
@@ -79,6 +90,7 @@ impl Plugin for DebugPlugin {
                 cleanup_debug_entities,
                 cleanup_boundary_visuals,
                 cleanup_edge_warnings,
+                cleanup_projectiles,
                 reset_pause_state,
             ));
     }
@@ -104,7 +116,7 @@ fn setup_debug_screen(mut commands: Commands) {
 
     // Debug info display
     commands.spawn((
-        Text::new("Debug Mode\nUse WASD to move\nMove mouse to aim\nRight click to activate shield\nSpace to dash in WASD direction (first 30% has i-frames)\nESC to pause\nPlayer: White circle (rotates to face mouse)\nDirection indicator: Small white circle (hidden when shield active)\nShield: White arc that grows from indicator\nMine Boss: Orange circle with 8 brown squares (dashes at player)"),
+        Text::new("Debug Mode\nUse WASD to move\nMove mouse to aim\nRight click to activate shield\nSpace to dash in WASD direction (first 30% has i-frames)\nESC to pause\nPlayer: White circle (rotates to face mouse)\nDirection indicator: Small white circle (hidden when shield active)\nShield: White arc that grows from indicator\nWeapon: Automatically fires white projectiles towards mouse\nMine Boss: Orange circle with 8 brown squares (dashes at player)"),
         TextFont {
             font_size: 20.0,
             ..default()
@@ -162,7 +174,7 @@ fn update_debug_info(
             };
             
             **text = format!(
-                "Debug Mode\nUse WASD to move\nMove mouse to aim\nRight click to activate shield\nSpace to dash in WASD direction (first 30% has i-frames)\nESC to pause\n{}\n{}\n{}\n{}",
+                "Debug Mode\nUse WASD to move\nMove mouse to aim\nRight click to activate shield\nSpace to dash in WASD direction (first 30% has i-frames)\nESC to pause\nWeapon: Automatically fires white projectiles towards mouse\n{}\n{}\n{}\n{}",
                 shield_info, energy_info, dash_info, boss_info
             );
         }
