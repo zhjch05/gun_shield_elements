@@ -84,8 +84,6 @@ fn setup_debug_screen(mut commands: Commands) {
         DebugUI,
         DebugInfoText,
     ));
-
-    info!("Debug screen setup complete with transparent background");
 }
 
 /// System to update debug information
@@ -98,7 +96,6 @@ fn update_debug_info(
     if let Ok(player_transform) = player_query.single() {
         if let Ok(mut text) = debug_text_query.single_mut() {
             let pos = player_transform.translation;
-            let rotation_degrees = player_transform.rotation.to_euler(EulerRot::ZYX).0.to_degrees();
             
             let shield_info = if let Ok(shield) = shield_query.single() {
                 format!("Shield: {} ({})", 
@@ -122,8 +119,8 @@ fn update_debug_info(
             };
             
             **text = format!(
-                "Debug Mode\nUse WASD to move\nMove mouse to aim\nRight click to activate shield\nESC to pause\nPlayer: White circle (rotates to face mouse)\nDirection indicator: Small white circle (hidden when shield active)\nShield: White arc that grows from indicator\nCenter marker: Red circle at (0,0)\nMine Boss: Orange circle with 8 brown squares (dashes at player)\nPlayer Position: ({:.1}, {:.1})\nPlayer Rotation: {:.1}°\n{}\n{}",
-                pos.x, pos.y, rotation_degrees, shield_info, boss_info
+                "Debug Mode\nUse WASD to move\nMove mouse to aim\nRight click to activate shield\nESC to pause\n{}\n{}",
+                shield_info, boss_info
             );
         }
     }

@@ -64,15 +64,13 @@ pub fn spawn_player(
         ));
     });
     
-    info!("Player spawned in debug mode at position (0, 0) with center marker, direction indicator, and shield as children");
-}
+ }
 
 /// System to clean up player entities
 pub fn cleanup_player(mut commands: Commands, player_query: Query<Entity, With<Player>>) {
     for entity in &player_query {
         commands.entity(entity).despawn(); // Automatically despawns children
     }
-    info!("Player entities cleaned up");
 }
 
 /// System to clean up debug entities
@@ -80,5 +78,4 @@ pub fn cleanup_debug_entities(mut commands: Commands, debug_query: Query<Entity,
     for entity in &debug_query {
         commands.entity(entity).despawn();
     }
-    info!("Debug entities cleaned up");
 }

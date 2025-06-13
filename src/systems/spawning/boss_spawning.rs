@@ -50,8 +50,6 @@ pub fn spawn_mine_boss(
             ));
         }
     });
-    
-    info!("Mine boss spawned at position ({}, {}) with 8 spikes", boss_position.x, boss_position.y);
 }
 
 /// System to clean up boss entities
@@ -59,5 +57,4 @@ pub fn cleanup_boss_entities(mut commands: Commands, boss_query: Query<Entity, W
     for entity in &boss_query {
         commands.entity(entity).despawn(); // Despawn boss and all children (spikes)
     }
-    info!("Boss entities cleaned up");
 } 
