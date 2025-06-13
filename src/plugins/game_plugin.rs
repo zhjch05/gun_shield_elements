@@ -9,7 +9,7 @@ use crate::systems::{
     check_player_death, spawn_player, cleanup_player, cleanup_debug_entities,
     player_movement, player_face_mouse, camera_follow_player, manage_player_invulnerability,
     spawn_mine_boss, cleanup_boss_entities,
-    mine_boss_ai, boss_dash_movement, boss_rotation_animation, boss_player_collision, boss_collision_damage
+    mine_boss_ai, boss_dash_movement, boss_rotation_animation, boss_player_collision
 };
 use crate::constants::AppColors;
 

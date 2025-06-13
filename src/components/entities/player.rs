@@ -98,6 +98,8 @@ pub struct Shield {
     pub energy_drain_rate: f32,
     /// Minimum energy required to activate shield
     pub activation_energy_cost: f32,
+    /// Damage reduction when shield blocks an attack (0.0 = no reduction, 1.0 = full block)
+    pub damage_reduction: f32,
 }
 
 impl Shield {
@@ -109,6 +111,7 @@ impl Shield {
             is_active: false,
             energy_drain_rate: 20.0, // Energy per second while active
             activation_energy_cost: 10.0, // Minimum energy required to activate
+            damage_reduction: 0.5, // 50% damage reduction
         }
     }
 
@@ -123,6 +126,45 @@ impl Shield {
 
     pub fn can_activate(&self, energy: &Energy) -> bool {
         energy.can_consume(self.activation_energy_cost)
+    }
+
+    /// Check if the shield can block an attack from the given angle
+    /// Returns true if the attack angle is within the shield arc
+    pub fn can_block_attack(&self, attack_angle: f32, shield_center_angle: f32) -> bool {
+        if !self.is_active || self.length <= 0.0 {
+            return false;
+        }
+
+        // Calculate the shield arc's angular coverage
+        let half_arc_angle = self.length * std::f32::consts::PI; // length * PI gives us half the arc
+        let shield_start_angle = shield_center_angle - half_arc_angle;
+        let shield_end_angle = shield_center_angle + half_arc_angle;
+
+        // Normalize angles to [-PI, PI]
+        let normalized_attack_angle = Self::normalize_angle(attack_angle);
+        let normalized_start = Self::normalize_angle(shield_start_angle);
+        let normalized_end = Self::normalize_angle(shield_end_angle);
+
+        // Check if attack angle is within shield arc
+        if normalized_start <= normalized_end {
+            // Normal case: shield doesn't cross the -PI/PI boundary
+            normalized_attack_angle >= normalized_start && normalized_attack_angle <= normalized_end
+        } else {
+            // Shield crosses the -PI/PI boundary
+            normalized_attack_angle >= normalized_start || normalized_attack_angle <= normalized_end
+        }
+    }
+
+    /// Normalize angle to [-PI, PI] range
+    fn normalize_angle(angle: f32) -> f32 {
+        let mut normalized = angle;
+        while normalized > std::f32::consts::PI {
+            normalized -= 2.0 * std::f32::consts::PI;
+        }
+        while normalized < -std::f32::consts::PI {
+            normalized += 2.0 * std::f32::consts::PI;
+        }
+        normalized
     }
 }
 
