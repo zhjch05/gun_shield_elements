@@ -7,7 +7,7 @@ use crate::systems::{
     reset_pause_state, spawn_health_bar, update_health_bar, update_health_bar_color,
     spawn_energy_bar, update_energy_bar, update_energy_bar_color,
     check_player_death, spawn_player, cleanup_player, cleanup_debug_entities,
-    player_movement, player_face_mouse, camera_follow_player,
+    player_movement, player_face_mouse, camera_follow_player, manage_player_invulnerability,
     spawn_mine_boss, cleanup_boss_entities,
     mine_boss_ai, boss_dash_movement, boss_rotation_animation, boss_player_collision, boss_collision_damage
 };
@@ -28,9 +28,13 @@ impl Plugin for GamePlugin {
                     despawn_pause_overlay,
                     handle_pause_buttons,
                     button_hover_system,
-                    player_movement,
-                    player_face_mouse,
-                    camera_follow_player,
+                    // Player systems - use chain for proper ordering
+                    (
+                        player_movement,
+                        manage_player_invulnerability,
+                        player_face_mouse,
+                        camera_follow_player,
+                    ).chain(),
                     mine_boss_ai,
                     boss_dash_movement,
                     boss_rotation_animation,

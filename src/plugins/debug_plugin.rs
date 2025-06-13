@@ -32,15 +32,15 @@ impl Plugin for DebugPlugin {
             .add_systems(
                 Update,
                 (
-                    // Player systems
+                    // Player systems - use chain to ensure proper ordering
                     player_movement,
+                    manage_player_invulnerability,
                     player_face_mouse,
-                    manage_player_invulnerability.after(player_movement),
                     handle_shield_input,
                     animate_shield,
                     update_shield_mesh.after(animate_shield),
                     camera_follow_player,
-                ).run_if(in_state(AppState::Debug)),
+                ).chain().run_if(in_state(AppState::Debug)),
             )
             .add_systems(
                 Update,
