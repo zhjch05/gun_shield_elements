@@ -52,6 +52,14 @@ pub struct EnergyBarUI;
 #[derive(Component)]
 pub struct EnergyBarFill;
 
+/// Marker component for boss health bar UI
+#[derive(Component)]
+pub struct BossHealthBarUI;
+
+/// Component for the boss health bar fill element
+#[derive(Component)]
+pub struct BossHealthBarFill;
+
 /// Marker component for game over UI
 #[derive(Component)]
 pub struct GameOverUI;

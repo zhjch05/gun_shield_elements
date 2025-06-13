@@ -11,7 +11,8 @@ use crate::systems::{
     spawn_energy_bar, update_energy_bar, update_energy_bar_color, manage_player_invulnerability,
     spawn_boundary_visuals, enforce_boundaries, cleanup_boundary_visuals,
     spawn_edge_warnings, update_edge_warnings, cleanup_edge_warnings,
-    weapon_firing_system, projectile_movement_system, projectile_lifetime_system, projectile_boss_collision_system, cleanup_projectiles
+    weapon_firing_system, projectile_movement_system, projectile_lifetime_system, projectile_boss_collision_system, cleanup_projectiles,
+    spawn_boss_health_bar, update_boss_health_bar, update_boss_health_bar_color, cleanup_boss_health_bar_on_boss_death, cleanup_boss_health_bar
 };
 
 pub struct DebugPlugin;
@@ -71,10 +72,14 @@ impl Plugin for DebugPlugin {
                 Update,
                 (
                     // Health and game state systems
+                    spawn_boss_health_bar, // Moved to Update to ensure boss is spawned first
                     update_health_bar,
                     update_health_bar_color,
                     update_energy_bar,
                     update_energy_bar_color,
+                    update_boss_health_bar,
+                    update_boss_health_bar_color,
+                    cleanup_boss_health_bar_on_boss_death,
                     update_edge_warnings, // Update edge warning intensity
                     check_player_death,
                     update_debug_info,
@@ -85,6 +90,7 @@ impl Plugin for DebugPlugin {
                 cleanup_ui::<PauseOverlayUI>,
                 cleanup_ui::<HealthBarUI>,
                 cleanup_ui::<EnergyBarUI>,
+                cleanup_boss_health_bar,
                 cleanup_player,
                 cleanup_boss_entities,
                 cleanup_debug_entities,

@@ -88,10 +88,10 @@ pub fn projectile_lifetime_system(
 pub fn projectile_boss_collision_system(
     mut commands: Commands,
     projectile_query: Query<(Entity, &Transform, &Projectile, &Collider), Without<Boss>>,
-    mut boss_query: Query<(&Transform, &mut Health, &Collider), With<Boss>>,
+    mut boss_query: Query<(Entity, &Transform, &mut Health, &Collider), With<Boss>>,
 ) {
     for (projectile_entity, projectile_transform, projectile, projectile_collider) in projectile_query.iter() {
-        for (boss_transform, mut boss_health, boss_collider) in boss_query.iter_mut() {
+        for (boss_entity, boss_transform, mut boss_health, boss_collider) in boss_query.iter_mut() {
             let distance = projectile_transform.translation.distance(boss_transform.translation);
             let collision_radius = projectile_collider.radius + boss_collider.radius;
             
@@ -106,8 +106,8 @@ pub fn projectile_boss_collision_system(
                 commands.entity(projectile_entity).despawn();
                 
                 if !boss_health.is_alive() {
-                    info!("Boss has been defeated!");
-                    // TODO: Handle boss death (drop loot, spawn effects, etc.)
+                    info!("Boss has been defeated! Despawning boss entity.");
+                    commands.entity(boss_entity).despawn();
                 }
             }
         }

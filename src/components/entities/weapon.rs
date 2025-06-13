@@ -4,8 +4,6 @@ use crate::components::attributes::{Speed, Collider};
 /// Marker component for weapons
 #[derive(Component, Debug)]
 pub struct Weapon {
-    /// Rate of fire in shots per second
-    pub fire_rate: f32,
     /// Timer to track when weapon can fire next
     pub fire_timer: Timer,
     /// Damage dealt by projectiles from this weapon
@@ -19,7 +17,6 @@ pub struct Weapon {
 impl Weapon {
     pub fn new(fire_rate: f32, damage: f32, projectile_speed: f32) -> Self {
         Self {
-            fire_rate,
             fire_timer: Timer::from_seconds(1.0 / fire_rate, TimerMode::Repeating),
             damage,
             projectile_speed,
@@ -47,8 +44,6 @@ pub struct Projectile {
     pub damage: f32,
     /// Direction the projectile is moving
     pub direction: Vec3,
-    /// Lifetime of the projectile in seconds
-    pub lifetime: f32,
     /// Timer to track when projectile should despawn
     pub lifetime_timer: Timer,
 }
@@ -58,7 +53,6 @@ impl Projectile {
         Self {
             damage,
             direction: direction.normalize_or_zero(),
-            lifetime,
             lifetime_timer: Timer::from_seconds(lifetime, TimerMode::Once),
         }
     }
