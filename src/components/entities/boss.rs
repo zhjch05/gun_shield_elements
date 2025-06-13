@@ -20,6 +20,7 @@ pub struct BossSkills {
     pub dash_duration: Timer,
     pub has_hit_player: bool, // Track if we've already hit the player during this dash
     pub constant_movement_speed: f32, // Speed for constant movement toward player
+    pub dash_distance: f32, // Distance for each dash
 }
 
 impl Default for BossSkills {
@@ -32,7 +33,8 @@ impl Default for BossSkills {
             dash_damage: 25.0,
             dash_duration: Timer::from_seconds(0.8, TimerMode::Once),
             has_hit_player: false,
-            constant_movement_speed: 175.0, // Default constant movement speed
+            constant_movement_speed: 200.0, // Default constant movement speed
+            dash_distance: 6000.0, // Default dash distance
         }
     }
 }
@@ -47,7 +49,8 @@ impl BossSkills {
             dash_damage: damage,
             dash_duration: Timer::from_seconds(0.8, TimerMode::Once),
             has_hit_player: false,
-            constant_movement_speed: 100.0, // Default constant movement speed
+            constant_movement_speed: 200.0, // Default constant movement speed
+            dash_distance: 700.0, // Default dash distance
         }
     }
 

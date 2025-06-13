@@ -20,11 +20,10 @@ pub fn mine_boss_ai(
                 if distance_to_player > 100.0 {
                     // Calculate direction to player
                     let direction = (player_transform.translation - boss_transform.translation).normalize_or_zero();
-                    let dash_distance = 300.0; // Constant dash distance
-                    let dash_target = boss_transform.translation + direction * dash_distance;
+                    let dash_target = boss_transform.translation + direction * skills.dash_distance;
                     
                     skills.start_dash(dash_target);
-                    info!("Mine boss starting dash towards player at distance: {:.1}, dash distance: {:.1}", distance_to_player, dash_distance);
+                    info!("Mine boss starting dash towards player at distance: {:.1}, dash distance: {:.1}", distance_to_player, skills.dash_distance);
                 }
             }
         }
