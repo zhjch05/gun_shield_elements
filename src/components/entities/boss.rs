@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::components::attributes::{Health, Speed, CollisionDamage};
+use crate::components::attributes::{Health, Speed, CollisionDamage, Collider};
 
 /// Marker component for all boss entities
 #[derive(Component, Debug)]
@@ -15,9 +15,9 @@ pub struct BossSkills {
     pub dash_cooldown: Timer,
     pub is_dashing: bool,
     pub dash_target: Vec3,
+    pub dash_start_position: Vec3, // Track where the dash started
     pub dash_speed: f32,
     pub dash_damage: f32,
-    pub dash_duration: Timer,
     pub has_hit_player: bool, // Track if we've already hit the player during this dash
     pub constant_movement_speed: f32, // Speed for constant movement toward player
     pub dash_distance: f32, // Distance for each dash
@@ -29,12 +29,12 @@ impl Default for BossSkills {
             dash_cooldown: Timer::from_seconds(3.0, TimerMode::Repeating),
             is_dashing: false,
             dash_target: Vec3::ZERO,
-            dash_speed: 600.0,
+            dash_start_position: Vec3::ZERO,
+            dash_speed: 1000.0,
             dash_damage: 25.0,
-            dash_duration: Timer::from_seconds(0.8, TimerMode::Once),
             has_hit_player: false,
             constant_movement_speed: 200.0, // Default constant movement speed
-            dash_distance: 6000.0, // Default dash distance
+            dash_distance: 1000.0, // Default dash distance
         }
     }
 }
@@ -45,9 +45,9 @@ impl BossSkills {
             dash_cooldown: Timer::from_seconds(cooldown_seconds, TimerMode::Repeating),
             is_dashing: false,
             dash_target: Vec3::ZERO,
+            dash_start_position: Vec3::ZERO,
             dash_speed,
             dash_damage: damage,
-            dash_duration: Timer::from_seconds(0.8, TimerMode::Once),
             has_hit_player: false,
             constant_movement_speed: 200.0, // Default constant movement speed
             dash_distance: 700.0, // Default dash distance
@@ -58,20 +58,21 @@ impl BossSkills {
         self.dash_cooldown.finished() && !self.is_dashing
     }
 
-    pub fn start_dash(&mut self, target: Vec3) {
+    pub fn start_dash(&mut self, target: Vec3, start_position: Vec3) {
         if self.can_dash() {
             self.is_dashing = true;
             self.dash_target = target;
-            self.dash_duration.reset();
+            self.dash_start_position = start_position;
             self.dash_cooldown.reset();
             self.has_hit_player = false; // Reset hit tracking for new dash
         }
     }
 
-    pub fn update_dash(&mut self, delta: f32) -> bool {
+    pub fn update_dash(&mut self, current_position: Vec3) -> bool {
         if self.is_dashing {
-            self.dash_duration.tick(std::time::Duration::from_secs_f32(delta));
-            if self.dash_duration.finished() {
+            // Check if we've traveled the full dash distance
+            let distance_traveled = self.dash_start_position.distance(current_position);
+            if distance_traveled >= self.dash_distance {
                 self.is_dashing = false;
                 return true; // Dash completed
             }
@@ -130,6 +131,7 @@ pub struct MineBossBundle {
     pub speed: Speed,
     pub skills: BossSkills,
     pub collision_damage: CollisionDamage,
+    pub collider: Collider,
     pub rotation_animation: RotationAnimation,
     pub transform: Transform,
     pub mesh: Mesh2d,
@@ -151,6 +153,7 @@ impl MineBossBundle {
             speed: Speed::new(speed),
             skills: BossSkills::default(),
             collision_damage: CollisionDamage::new(20.0, 0.5), // 20 DPS, damage every 0.5 seconds
+            collider: Collider::new(30.0), // Boss radius
             rotation_animation: RotationAnimation::default(),
             transform: Transform::from_translation(position),
             mesh: Mesh2d(mesh),

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::components::{Boss, MineBoss, BossSkills, RotationAnimation, Player, Health, CollisionDamage};
+use crate::components::{Boss, MineBoss, BossSkills, RotationAnimation, Player, Health, CollisionDamage, Collider};
 
 /// System to handle Mine boss AI and skill usage
 pub fn mine_boss_ai(
@@ -22,7 +22,7 @@ pub fn mine_boss_ai(
                     let direction = (player_transform.translation - boss_transform.translation).normalize_or_zero();
                     let dash_target = boss_transform.translation + direction * skills.dash_distance;
                     
-                    skills.start_dash(dash_target);
+                    skills.start_dash(dash_target, boss_transform.translation);
                     info!("Mine boss starting dash towards player at distance: {:.1}, dash distance: {:.1}", distance_to_player, skills.dash_distance);
                 }
             }
@@ -53,8 +53,8 @@ pub fn boss_dash_movement(
                 // Move towards target
                 transform.translation += direction * move_distance;
                 
-                // Check if dash is complete
-                if skills.update_dash(delta) {
+                // Check if dash is complete (using current position)
+                if skills.update_dash(transform.translation) {
                     info!("Mine boss dash completed");
                     rotation.stop();
                 }
@@ -88,14 +88,15 @@ pub fn boss_rotation_animation(
 
 /// System to handle collision between boss and player
 pub fn boss_player_collision(
-    mut boss_query: Query<(&Transform, &mut BossSkills), (With<MineBoss>, Without<Player>)>,
-    mut player_query: Query<(&Transform, &mut Health), (With<Player>, Without<MineBoss>)>,
+    mut boss_query: Query<(&Transform, &mut BossSkills, &Collider), (With<MineBoss>, Without<Player>)>,
+    mut player_query: Query<(&Transform, &mut Health, &Collider), (With<Player>, Without<MineBoss>)>,
 ) {
-    if let Ok((player_transform, mut player_health)) = player_query.single_mut() {
-        for (boss_transform, mut skills) in boss_query.iter_mut() {
+    if let Ok((player_transform, mut player_health, player_collider)) = player_query.single_mut() {
+        for (boss_transform, mut skills, boss_collider) in boss_query.iter_mut() {
             if skills.can_hit_player() {
                 let distance = boss_transform.translation.distance(player_transform.translation);
-                let collision_radius = 35.0; // Boss radius (30) + small buffer
+                // Accurate circle-to-circle collision: sum of both radii
+                let collision_radius = player_collider.radius + boss_collider.radius;
                 
                 if distance < collision_radius {
                     // Apply damage to player (only once per dash)
@@ -116,16 +117,17 @@ pub fn boss_player_collision(
 
 /// System to handle collision damage between boss and player during constant movement
 pub fn boss_collision_damage(
-    mut boss_query: Query<(&Transform, &BossSkills, &mut CollisionDamage), (With<MineBoss>, Without<Player>)>,
-    mut player_query: Query<(&Transform, &mut Health), (With<Player>, Without<MineBoss>)>,
+    mut boss_query: Query<(&Transform, &BossSkills, &mut CollisionDamage, &Collider), (With<MineBoss>, Without<Player>)>,
+    mut player_query: Query<(&Transform, &mut Health, &Collider), (With<Player>, Without<MineBoss>)>,
     time: Res<Time>,
 ) {
-    if let Ok((player_transform, mut player_health)) = player_query.single_mut() {
-        for (boss_transform, skills, mut collision_damage) in boss_query.iter_mut() {
+    if let Ok((player_transform, mut player_health, player_collider)) = player_query.single_mut() {
+        for (boss_transform, skills, mut collision_damage, boss_collider) in boss_query.iter_mut() {
             // Only apply collision damage when NOT dashing (constant movement only)
             if !skills.is_dashing {
                 let distance = boss_transform.translation.distance(player_transform.translation);
-                let collision_radius = 35.0; // Boss radius (30) + small buffer
+                // Accurate circle-to-circle collision: sum of both radii
+                let collision_radius = player_collider.radius + boss_collider.radius;
                 
                 if distance < collision_radius {
                     let current_time = time.elapsed_secs();
