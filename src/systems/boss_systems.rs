@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::components::{Boss, MineBoss, BossSkills, RotationAnimation, Player, Health, CollisionDamage, Collider};
+use crate::components::{Boss, MineBoss, BossSkills, RotationAnimation, Player, Health, CollisionDamage, Collider, Invulnerability};
 
 /// System to handle Mine boss AI and skill usage
 pub fn mine_boss_ai(
@@ -89,9 +89,9 @@ pub fn boss_rotation_animation(
 /// System to handle collision between boss and player
 pub fn boss_player_collision(
     mut boss_query: Query<(&Transform, &mut BossSkills, &Collider), (With<MineBoss>, Without<Player>)>,
-    mut player_query: Query<(&Transform, &mut Health, &Collider), (With<Player>, Without<MineBoss>)>,
+    mut player_query: Query<(&Transform, &mut Health, &Collider, &Invulnerability), (With<Player>, Without<MineBoss>)>,
 ) {
-    if let Ok((player_transform, mut player_health, player_collider)) = player_query.single_mut() {
+    if let Ok((player_transform, mut player_health, player_collider, player_invulnerability)) = player_query.single_mut() {
         for (boss_transform, mut skills, boss_collider) in boss_query.iter_mut() {
             if skills.can_hit_player() {
                 let distance = boss_transform.translation.distance(player_transform.translation);
@@ -99,16 +99,23 @@ pub fn boss_player_collision(
                 let collision_radius = player_collider.radius + boss_collider.radius;
                 
                 if distance < collision_radius {
-                    // Apply damage to player (only once per dash)
-                    player_health.take_damage(skills.dash_damage);
-                    skills.mark_player_hit(); // Mark that we've hit the player this dash
-                    info!("Mine boss hit player for {} damage! Player health: {:.1}/{:.1}", 
-                        skills.dash_damage, player_health.current, player_health.max);
-                    
-                    if !player_health.is_alive() {
-                        info!("Player has died!");
-                        // TODO: Handle player death (restart, game over screen, etc.)
+                    // Check if player is invulnerable
+                    if !player_invulnerability.is_active() {
+                        // Apply damage to player (only once per dash)
+                        player_health.take_damage(skills.dash_damage);
+                        info!("Mine boss hit player for {} damage! Player health: {:.1}/{:.1}", 
+                            skills.dash_damage, player_health.current, player_health.max);
+                        
+                        if !player_health.is_alive() {
+                            info!("Player has died!");
+                            // TODO: Handle player death (restart, game over screen, etc.)
+                        }
+                    } else {
+                        info!("Player avoided damage due to invulnerability frames!");
                     }
+                    
+                    // Mark that we've hit the player this dash (regardless of invulnerability)
+                    skills.mark_player_hit();
                 }
             }
         }
@@ -118,10 +125,10 @@ pub fn boss_player_collision(
 /// System to handle collision damage between boss and player during constant movement
 pub fn boss_collision_damage(
     mut boss_query: Query<(&Transform, &BossSkills, &mut CollisionDamage, &Collider), (With<MineBoss>, Without<Player>)>,
-    mut player_query: Query<(&Transform, &mut Health, &Collider), (With<Player>, Without<MineBoss>)>,
+    mut player_query: Query<(&Transform, &mut Health, &Collider, &Invulnerability), (With<Player>, Without<MineBoss>)>,
     time: Res<Time>,
 ) {
-    if let Ok((player_transform, mut player_health, player_collider)) = player_query.single_mut() {
+    if let Ok((player_transform, mut player_health, player_collider, player_invulnerability)) = player_query.single_mut() {
         for (boss_transform, skills, mut collision_damage, boss_collider) in boss_query.iter_mut() {
             // Only apply collision damage when NOT dashing (constant movement only)
             if !skills.is_dashing {
@@ -130,15 +137,18 @@ pub fn boss_collision_damage(
                 let collision_radius = player_collider.radius + boss_collider.radius;
                 
                 if distance < collision_radius {
-                    let current_time = time.elapsed_secs();
-                    if collision_damage.can_damage(current_time) {
-                        let damage = collision_damage.apply_damage(current_time);
-                        player_health.take_damage(damage);
-                        info!("Boss collision damage: {} damage! Player health: {:.1}/{:.1}", 
-                            damage, player_health.current, player_health.max);
-                        
-                        if !player_health.is_alive() {
-                            info!("Player has died from collision damage!");
+                    // Check if player is invulnerable
+                    if !player_invulnerability.is_active() {
+                        let current_time = time.elapsed_secs();
+                        if collision_damage.can_damage(current_time) {
+                            let damage = collision_damage.apply_damage(current_time);
+                            player_health.take_damage(damage);
+                            info!("Boss collision damage: {} damage! Player health: {:.1}/{:.1}", 
+                                damage, player_health.current, player_health.max);
+                            
+                            if !player_health.is_alive() {
+                                info!("Player has died from collision damage!");
+                            }
                         }
                     }
                 }

@@ -8,7 +8,7 @@ use crate::systems::{
     handle_shield_input, animate_shield, update_shield_mesh, spawn_mine_boss, cleanup_boss_entities,
     mine_boss_ai, boss_dash_movement, boss_rotation_animation, boss_player_collision, boss_collision_damage,
     spawn_health_bar, update_health_bar, update_health_bar_color, check_player_death,
-    spawn_energy_bar, update_energy_bar, update_energy_bar_color
+    spawn_energy_bar, update_energy_bar, update_energy_bar_color, manage_player_invulnerability
 };
 
 pub struct DebugPlugin;
@@ -35,6 +35,7 @@ impl Plugin for DebugPlugin {
                     // Player systems
                     player_movement,
                     player_face_mouse,
+                    manage_player_invulnerability.after(player_movement),
                     handle_shield_input,
                     animate_shield,
                     update_shield_mesh.after(animate_shield),
@@ -97,7 +98,7 @@ fn setup_debug_screen(mut commands: Commands) {
 
     // Debug info display
     commands.spawn((
-        Text::new("Debug Mode\nUse WASD to move\nMove mouse to aim\nRight click to activate shield\nSpace to dash in WASD direction\nESC to pause\nPlayer: White circle (rotates to face mouse)\nDirection indicator: Small white circle (hidden when shield active)\nShield: White arc that grows from indicator\nMine Boss: Orange circle with 8 brown squares (dashes at player)"),
+        Text::new("Debug Mode\nUse WASD to move\nMove mouse to aim\nRight click to activate shield\nSpace to dash in WASD direction (first 30% has i-frames)\nESC to pause\nPlayer: White circle (rotates to face mouse)\nDirection indicator: Small white circle (hidden when shield active)\nShield: White arc that grows from indicator\nMine Boss: Orange circle with 8 brown squares (dashes at player)"),
         TextFont {
             font_size: 20.0,
             ..default()
@@ -117,12 +118,12 @@ fn setup_debug_screen(mut commands: Commands) {
 
 /// System to update debug information
 fn update_debug_info(
-    player_query: Query<(&Transform, &crate::components::Energy, &crate::components::PlayerDash), With<Player>>,
+    player_query: Query<(&Transform, &crate::components::Energy, &crate::components::PlayerDash, &crate::components::Invulnerability), With<Player>>,
     shield_query: Query<&crate::components::Shield>,
     boss_query: Query<(&Transform, &BossSkills), With<MineBoss>>,
     mut debug_text_query: Query<&mut Text, With<DebugInfoText>>,
 ) {
-    if let Ok((player_transform, player_energy, player_dash)) = player_query.single() {
+    if let Ok((player_transform, player_energy, player_dash, player_invulnerability)) = player_query.single() {
         if let Ok(mut text) = debug_text_query.single_mut() {
             let pos = player_transform.translation;
             
@@ -138,8 +139,9 @@ fn update_debug_info(
             let energy_info = format!("Energy: {:.1}/{:.1} ({:.0}%)", 
                 player_energy.current, player_energy.max, player_energy.percentage() * 100.0);
             
-            let dash_info = format!("Dash: {}", 
-                if player_dash.is_dashing { "Active" } else { "Ready" });
+            let dash_info = format!("Dash: {}{}", 
+                if player_dash.is_dashing { "Active" } else { "Ready" },
+                if player_invulnerability.is_active() { " (I-FRAMES)" } else { "" });
             
             let boss_info = if let Ok((boss_transform, boss_skills)) = boss_query.single() {
                 let boss_pos = boss_transform.translation;
@@ -154,7 +156,7 @@ fn update_debug_info(
             };
             
             **text = format!(
-                "Debug Mode\nUse WASD to move\nMove mouse to aim\nRight click to activate shield\nSpace to dash in WASD direction\nESC to pause\n{}\n{}\n{}\n{}",
+                "Debug Mode\nUse WASD to move\nMove mouse to aim\nRight click to activate shield\nSpace to dash in WASD direction (first 30% has i-frames)\nESC to pause\n{}\n{}\n{}\n{}",
                 shield_info, energy_info, dash_info, boss_info
             );
         }

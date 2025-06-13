@@ -1,10 +1,9 @@
 use bevy::prelude::*;
-use crate::components::{Player, DirectionIndicator, PlayerDash, Energy};
+use crate::components::{Player, DirectionIndicator, PlayerDash, Energy, Invulnerability};
 
 /// System to handle player movement and dash input
 pub fn player_movement(
     mut player_query: Query<(&mut Transform, &mut PlayerDash, &mut Energy), (With<Player>, Without<DirectionIndicator>)>,
-    mut indicator_query: Query<&mut Transform, (With<DirectionIndicator>, Without<Player>)>,
     input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
@@ -73,6 +72,19 @@ pub fn player_movement(
                 movement = movement.normalize() * base_speed * delta;
                 player_transform.translation += movement;
             }
+        }
+    }
+}
+
+/// System to manage player invulnerability during dash
+pub fn manage_player_invulnerability(
+    mut player_query: Query<(&Transform, &PlayerDash, &mut Invulnerability), With<Player>>,
+) {
+    for (transform, dash, mut invulnerability) in &mut player_query {
+        if dash.should_be_invulnerable(transform.translation) {
+            invulnerability.activate();
+        } else {
+            invulnerability.deactivate();
         }
     }
 }

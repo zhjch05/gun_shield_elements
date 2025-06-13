@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::components::attributes::{Health, Speed, Collider, Energy};
+use crate::components::attributes::{Health, Speed, Collider, Energy, Invulnerability};
 
 /// Marker component for the player entity
 #[derive(Component, Debug)]
@@ -18,6 +18,7 @@ pub struct PlayerDash {
     pub dash_speed: f32,
     pub dash_distance: f32,
     pub energy_cost: f32, // Energy required per dash
+    pub invulnerability_percentage: f32, // Percentage of dash distance that provides invulnerability (0.0 to 1.0)
 }
 
 impl Default for PlayerDash {
@@ -29,12 +30,13 @@ impl Default for PlayerDash {
             dash_speed: 800.0, // Faster than boss dash
             dash_distance: 300.0, // Reasonable dash distance for player
             energy_cost: 30.0, // Energy cost per dash
+            invulnerability_percentage: 0.3, // First 30% of dash provides invulnerability
         }
     }
 }
 
 impl PlayerDash {
-    pub fn new(dash_speed: f32, dash_distance: f32, energy_cost: f32) -> Self {
+    pub fn new(dash_speed: f32, dash_distance: f32, energy_cost: f32, invulnerability_percentage: f32) -> Self {
         Self {
             is_dashing: false,
             dash_target: Vec3::ZERO,
@@ -42,6 +44,7 @@ impl PlayerDash {
             dash_speed,
             dash_distance,
             energy_cost,
+            invulnerability_percentage: invulnerability_percentage.clamp(0.0, 1.0),
         }
     }
 
@@ -65,6 +68,18 @@ impl PlayerDash {
             }
         }
         false
+    }
+
+    /// Check if the player should be invulnerable based on dash progress
+    pub fn should_be_invulnerable(&self, current_position: Vec3) -> bool {
+        if !self.is_dashing {
+            return false;
+        }
+        
+        let distance_traveled = self.dash_start_position.distance(current_position);
+        let invulnerable_distance = self.dash_distance * self.invulnerability_percentage;
+        
+        distance_traveled <= invulnerable_distance
     }
 }
 
@@ -110,6 +125,7 @@ pub struct PlayerBundle {
     pub energy: Energy,
     pub collider: Collider,
     pub dash: PlayerDash,
+    pub invulnerability: Invulnerability,
     pub transform: Transform,
     pub mesh: Mesh2d,
     pub material: MeshMaterial2d<ColorMaterial>,
@@ -130,6 +146,7 @@ impl PlayerBundle {
             energy: Energy::new(100.0, 25.0), // 100 max energy, 25 per second recharge
             collider: Collider::new(25.0), // Player radius
             dash: PlayerDash::default(),
+            invulnerability: Invulnerability::new(),
             transform: Transform::from_translation(position),
             mesh: Mesh2d(mesh),
             material: MeshMaterial2d(material),
