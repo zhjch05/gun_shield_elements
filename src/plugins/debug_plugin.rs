@@ -6,7 +6,7 @@ use crate::systems::{
     spawn_pause_overlay, despawn_pause_overlay, handle_pause_buttons, button_hover_system,
     reset_pause_state, spawn_player, player_movement, player_face_mouse, camera_follow_player, cleanup_player, cleanup_debug_entities,
     handle_shield_input, animate_shield, update_shield_mesh, spawn_mine_boss, cleanup_boss_entities,
-    mine_boss_ai, boss_dash_movement, boss_rotation_animation, boss_player_collision,
+    mine_boss_ai, boss_dash_movement, boss_rotation_animation, boss_player_collision, boss_collision_damage,
     spawn_health_bar, update_health_bar, update_health_bar_color, check_player_death
 };
 
@@ -19,22 +19,42 @@ impl Plugin for DebugPlugin {
             .add_systems(
                 Update,
                 (
+                    // UI and pause systems
                     handle_pause_input,
                     update_pause_timer,
                     spawn_pause_overlay,
                     despawn_pause_overlay,
                     handle_pause_buttons,
                     button_hover_system,
+                ).run_if(in_state(AppState::Debug)),
+            )
+            .add_systems(
+                Update,
+                (
+                    // Player systems
                     player_movement,
                     player_face_mouse,
                     handle_shield_input,
                     animate_shield,
                     update_shield_mesh.after(animate_shield),
                     camera_follow_player,
+                ).run_if(in_state(AppState::Debug)),
+            )
+            .add_systems(
+                Update,
+                (
+                    // Boss systems
                     mine_boss_ai,
                     boss_dash_movement,
                     boss_rotation_animation,
                     boss_player_collision,
+                    boss_collision_damage,
+                ).run_if(in_state(AppState::Debug)),
+            )
+            .add_systems(
+                Update,
+                (
+                    // Health and game state systems
                     update_health_bar,
                     update_health_bar_color,
                     check_player_death,

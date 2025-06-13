@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::components::attributes::{Health, Speed};
+use crate::components::attributes::{Health, Speed, CollisionDamage};
 
 /// Marker component for all boss entities
 #[derive(Component, Debug)]
@@ -32,7 +32,7 @@ impl Default for BossSkills {
             dash_damage: 25.0,
             dash_duration: Timer::from_seconds(0.8, TimerMode::Once),
             has_hit_player: false,
-            constant_movement_speed: 100.0, // Default constant movement speed
+            constant_movement_speed: 175.0, // Default constant movement speed
         }
     }
 }
@@ -126,6 +126,7 @@ pub struct MineBossBundle {
     pub health: Health,
     pub speed: Speed,
     pub skills: BossSkills,
+    pub collision_damage: CollisionDamage,
     pub rotation_animation: RotationAnimation,
     pub transform: Transform,
     pub mesh: Mesh2d,
@@ -146,6 +147,7 @@ impl MineBossBundle {
             health: Health::new(max_health),
             speed: Speed::new(speed),
             skills: BossSkills::default(),
+            collision_damage: CollisionDamage::new(20.0, 0.5), // 20 DPS, damage every 0.5 seconds
             rotation_animation: RotationAnimation::default(),
             transform: Transform::from_translation(position),
             mesh: Mesh2d(mesh),
