@@ -10,11 +10,11 @@ pub fn enforce_boundaries(
         let original_pos = transform.translation;
         let clamped_pos = GameBoundaries::clamp_position(original_pos);
         
-        // If position was clamped and this is a player with dash, end the dash to prevent getting stuck
+        // If position was clamped and this is a player with dash, reset the dash to prevent getting stuck
         if original_pos != clamped_pos {
             if let Some(mut dash) = dash_opt {
                 if dash.is_dashing {
-                    dash.is_dashing = false; // End dash when hitting boundary
+                    dash.reset_dash(); // Properly reset all dash state when hitting boundary
                 }
             }
             transform.translation = clamped_pos;

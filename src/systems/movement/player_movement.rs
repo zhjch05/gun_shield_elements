@@ -50,6 +50,13 @@ pub fn player_movement(
         if dash.is_dashing {
             // Dash movement
             let direction = (dash.dash_target - player_transform.translation).normalize_or_zero();
+            
+            // Safety check: if direction is zero or dash target is invalid, reset dash
+            if direction == Vec3::ZERO || dash.dash_target == Vec3::ZERO {
+                dash.reset_dash();
+                continue;
+            }
+            
             let move_distance = dash.dash_speed * delta;
             player_transform.translation += direction * move_distance;
             

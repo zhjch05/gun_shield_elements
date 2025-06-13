@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use crate::components::attributes::{Health, Speed, Collider, Energy, Invulnerability};
 use crate::components::boundary::BoundedMovement;
+use crate::constants::GameBoundaries;
 
 /// Marker component for the player entity
 #[derive(Component, Debug)]
@@ -43,20 +44,33 @@ impl PlayerDash {
 
     pub fn start_dash(&mut self, direction: Vec3, start_position: Vec3) {
         self.is_dashing = true;
-        self.dash_target = start_position + direction.normalize_or_zero() * self.dash_distance;
+        let target = start_position + direction.normalize_or_zero() * self.dash_distance;
+        
+        // Clamp the dash target to stay within boundaries
+        self.dash_target = GameBoundaries::clamp_position(target);
         self.dash_start_position = start_position;
     }
 
     pub fn update_dash(&mut self, current_position: Vec3, _delta_time: f32) -> bool {
         if self.is_dashing {
-            // Check if we've traveled the full dash distance
+            // Check if we've traveled the full dash distance or are very close to the target
             let distance_traveled = self.dash_start_position.distance(current_position);
-            if distance_traveled >= self.dash_distance {
-                self.is_dashing = false;
+            let distance_to_target = current_position.distance(self.dash_target);
+            
+            // End dash if we've traveled the full distance or are very close to target
+            if distance_traveled >= self.dash_distance || distance_to_target < 10.0 {
+                self.reset_dash();
                 return true; // Dash completed
             }
         }
         false
+    }
+
+    /// Reset dash state - called when dash is interrupted or completed
+    pub fn reset_dash(&mut self) {
+        self.is_dashing = false;
+        self.dash_target = Vec3::ZERO;
+        self.dash_start_position = Vec3::ZERO;
     }
 
     /// Check if the player should be invulnerable based on dash progress
