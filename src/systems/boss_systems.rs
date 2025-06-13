@@ -62,8 +62,7 @@ pub fn boss_dash_movement(
             } else {
                 // Constant slow movement toward player when not dashing
                 let direction = (player_transform.translation - transform.translation).normalize_or_zero();
-                let constant_speed = 50.0; // Slow constant movement speed
-                let move_distance = constant_speed * delta;
+                let move_distance = skills.constant_movement_speed * delta;
                 
                 // Move towards player
                 transform.translation += direction * move_distance;
