@@ -28,7 +28,7 @@ impl Default for PlayerDash {
             dash_target: Vec3::ZERO,
             dash_start_position: Vec3::ZERO,
             dash_speed: 800.0, // Faster than boss dash
-            dash_distance: 300.0, // Reasonable dash distance for player
+            dash_distance: 400.0, // Reasonable dash distance for player
             energy_cost: 30.0, // Energy cost per dash
             invulnerability_percentage: 0.3, // First 30% of dash provides invulnerability
         }
