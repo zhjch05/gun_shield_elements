@@ -1,6 +1,6 @@
-mod player;
-mod boss;
-mod weapon;
+pub mod player;
+pub mod boss;
+pub mod weapon;
 
 pub use player::*;
 pub use boss::*;

@@ -22,7 +22,7 @@ pub fn weapon_firing_system(
         
         if weapon.is_firing && weapon.can_fire() {
             // Get direction indicator position and mouse position
-            if let (Ok(player_transform), Ok(indicator_transform), Ok(window)) = 
+            if let (Ok(_player_transform), Ok(indicator_transform), Ok(window)) = 
                 (player_query.single(), indicator_query.single(), window_query.single()) {
                 
                 if let Ok((camera, camera_transform)) = camera_query.single() {
