@@ -1,17 +1,24 @@
 use bevy::prelude::*;
-use crate::components::{Player, DirectionIndicator, PlayerDash, Energy, Invulnerability};
+use crate::components::{Player, DirectionIndicator, PlayerDash, Energy, Invulnerability, Shield};
 
 /// System to handle player movement and dash input
 pub fn player_movement(
     mut player_query: Query<(&mut Transform, &mut PlayerDash, &mut Energy), (With<Player>, Without<DirectionIndicator>)>,
+    shield_query: Query<&Shield>,
     input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
     for (mut player_transform, mut dash, mut energy) in &mut player_query {
         let delta = time.delta_secs();
         
-        // Recharge energy
-        energy.recharge(delta);
+        // Recharge energy only if shield is not active
+        let shield_active = shield_query.single()
+            .map(|shield| shield.is_active && shield.length > 0.0)
+            .unwrap_or(false);
+        
+        if !shield_active {
+            energy.recharge(delta);
+        }
         
         // Handle dash input (Space key)
         if input.just_pressed(KeyCode::Space) && dash.can_dash(&energy) {

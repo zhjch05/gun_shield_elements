@@ -1,39 +1,61 @@
 use bevy::prelude::*;
 use std::f32::consts::PI;
 use crate::components::{Player, Shield, DirectionIndicator};
+use crate::components::attributes::Energy;
 
 /// System to handle shield input (right click)
 pub fn handle_shield_input(
     mouse_input: Res<ButtonInput<MouseButton>>,
     mut shield_query: Query<&mut Shield>,
+    mut energy_query: Query<&mut Energy, With<Player>>,
     mut indicator_query: Query<&mut Visibility, With<DirectionIndicator>>,
 ) {
     if let Ok(mut shield) = shield_query.single_mut() {
-        if mouse_input.just_pressed(MouseButton::Right) {
-            shield.activate(0.5); // Full shield length
-            
-            // Hide direction indicator when shield is active
-            if let Ok(mut visibility) = indicator_query.single_mut() {
-                *visibility = Visibility::Hidden;
-            }
-        } else if mouse_input.just_released(MouseButton::Right) {
-            shield.deactivate();
-            
-            // Show direction indicator when shield is deactivated
-            if let Ok(mut visibility) = indicator_query.single_mut() {
-                *visibility = Visibility::Visible;
+        if let Ok(mut energy) = energy_query.single_mut() {
+            if mouse_input.just_pressed(MouseButton::Right) {
+                // Check if we have enough energy to activate the shield
+                if shield.can_activate(&energy) {
+                    // Consume the activation energy cost
+                    energy.consume(shield.activation_energy_cost);
+                    shield.activate(0.5); // Full shield length
+                    
+                    // Hide direction indicator when shield is active
+                    if let Ok(mut visibility) = indicator_query.single_mut() {
+                        *visibility = Visibility::Hidden;
+                    }
+                }
+            } else if mouse_input.just_released(MouseButton::Right) {
+                shield.deactivate();
+                
+                // Show direction indicator when shield is deactivated
+                if let Ok(mut visibility) = indicator_query.single_mut() {
+                    *visibility = Visibility::Visible;
+                }
             }
         }
     }
 }
 
-/// System to animate shield growth/shrinkage
+/// System to animate shield growth/shrinkage and handle energy consumption
 pub fn animate_shield(
     time: Res<Time>,
     mut shield_query: Query<&mut Shield>,
+    mut energy_query: Query<&mut Energy, With<Player>>,
     mut indicator_query: Query<&mut Visibility, With<DirectionIndicator>>,
 ) {
     for mut shield in &mut shield_query {
+        if let Ok(mut energy) = energy_query.single_mut() {
+            // If shield is active, consume energy
+            if shield.is_active && shield.length > 0.0 {
+                let energy_to_consume = shield.energy_drain_rate * time.delta_secs();
+                
+                // If we can't consume energy, deactivate the shield
+                if !energy.consume(energy_to_consume) {
+                    shield.deactivate();
+                }
+            }
+        }
+        
         if shield.is_active || shield.length > 0.0 {
             let delta = time.delta_secs() * shield.animation_speed;
             

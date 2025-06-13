@@ -94,6 +94,10 @@ pub struct Shield {
     pub animation_speed: f32,
     /// Whether the shield is currently active
     pub is_active: bool,
+    /// Energy consumed per second while shield is active
+    pub energy_drain_rate: f32,
+    /// Minimum energy required to activate shield
+    pub activation_energy_cost: f32,
 }
 
 impl Shield {
@@ -103,6 +107,8 @@ impl Shield {
             target_length: 0.0,
             animation_speed: 3.0, // Units per second
             is_active: false,
+            energy_drain_rate: 20.0, // Energy per second while active
+            activation_energy_cost: 10.0, // Minimum energy required to activate
         }
     }
 
@@ -113,6 +119,10 @@ impl Shield {
 
     pub fn deactivate(&mut self) {
         self.target_length = 0.0;
+    }
+
+    pub fn can_activate(&self, energy: &Energy) -> bool {
+        energy.can_consume(self.activation_energy_cost)
     }
 }
 
