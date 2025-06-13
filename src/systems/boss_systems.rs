@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::components::{Boss, MineBoss, BossSkills, RotationAnimation, Player, Health, CollisionDamage, Collider, Invulnerability, Shield, DirectionIndicator};
+use crate::components::{Boss, MineBoss, BossSkills, RotationAnimation, Player, Health, CollisionDamage, Collider, Invulnerability, Shield, DirectionIndicator, Speed};
 
 /// System to handle Mine boss AI and skill usage
 pub fn mine_boss_ai(
@@ -32,12 +32,12 @@ pub fn mine_boss_ai(
 
 /// System to handle boss dash movement and animation
 pub fn boss_dash_movement(
-    mut boss_query: Query<(&mut Transform, &mut BossSkills, &mut RotationAnimation), With<MineBoss>>,
+    mut boss_query: Query<(&mut Transform, &mut BossSkills, &mut RotationAnimation, &Speed), With<MineBoss>>,
     player_query: Query<&Transform, (With<Player>, Without<MineBoss>)>,
     time: Res<Time>,
 ) {
     if let Ok(player_transform) = player_query.single() {
-        for (mut transform, mut skills, mut rotation) in boss_query.iter_mut() {
+        for (mut transform, mut skills, mut rotation, speed) in boss_query.iter_mut() {
             let delta = time.delta_secs();
             
             if skills.is_dashing {
@@ -61,7 +61,7 @@ pub fn boss_dash_movement(
             } else {
                 // Constant slow movement toward player when not dashing
                 let direction = (player_transform.translation - transform.translation).normalize_or_zero();
-                let move_distance = skills.constant_movement_speed * delta;
+                let move_distance = speed.value * delta;
                 
                 // Move towards player
                 transform.translation += direction * move_distance;

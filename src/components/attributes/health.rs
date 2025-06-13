@@ -26,11 +26,7 @@ impl Health {
     pub fn take_damage(&mut self, damage: f32) {
         self.current = (self.current - damage).max(0.0);
     }
-    
-    pub fn heal(&mut self, amount: f32) {
-        self.current = (self.current + amount).min(self.max);
-    }
-    
+
     pub fn is_alive(&self) -> bool {
         self.current > 0.0
     }

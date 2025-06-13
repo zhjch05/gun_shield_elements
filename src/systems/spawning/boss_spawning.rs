@@ -24,7 +24,7 @@ pub fn spawn_mine_boss(
     let boss_entity = commands.spawn((
         MineBossBundle::new(
             150.0,                      // max health
-            100.0,                      // speed (slower than player)
+            200.0,
             boss_position,
             body_mesh,
             body_material,

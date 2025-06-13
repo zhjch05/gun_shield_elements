@@ -19,7 +19,6 @@ pub struct BossSkills {
     pub dash_speed: f32,
     pub dash_damage: f32,
     pub has_hit_player: bool, // Track if we've already hit the player during this dash
-    pub constant_movement_speed: f32, // Speed for constant movement toward player
     pub dash_distance: f32, // Distance for each dash
 }
 
@@ -30,30 +29,15 @@ impl Default for BossSkills {
             is_dashing: false,
             dash_target: Vec3::ZERO,
             dash_start_position: Vec3::ZERO,
-            dash_speed: 1000.0,
+            dash_speed: 800.0,
             dash_damage: 25.0,
             has_hit_player: false,
-            constant_movement_speed: 200.0, // Default constant movement speed
-            dash_distance: 1000.0, // Default dash distance
+            dash_distance: 800.0, // Default dash distance
         }
     }
 }
 
 impl BossSkills {
-    pub fn new(cooldown_seconds: f32, dash_speed: f32, damage: f32) -> Self {
-        Self {
-            dash_cooldown: Timer::from_seconds(cooldown_seconds, TimerMode::Repeating),
-            is_dashing: false,
-            dash_target: Vec3::ZERO,
-            dash_start_position: Vec3::ZERO,
-            dash_speed,
-            dash_damage: damage,
-            has_hit_player: false,
-            constant_movement_speed: 200.0, // Default constant movement speed
-            dash_distance: 700.0, // Default dash distance
-        }
-    }
-
     pub fn can_dash(&self) -> bool {
         self.dash_cooldown.finished() && !self.is_dashing
     }
@@ -106,13 +90,6 @@ impl Default for RotationAnimation {
 }
 
 impl RotationAnimation {
-    pub fn new(speed: f32) -> Self {
-        Self {
-            speed,
-            enabled: false,
-        }
-    }
-
     pub fn start(&mut self) {
         self.enabled = true;
     }
