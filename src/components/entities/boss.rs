@@ -18,6 +18,7 @@ pub struct BossSkills {
     pub dash_speed: f32,
     pub dash_damage: f32,
     pub dash_duration: Timer,
+    pub has_hit_player: bool, // Track if we've already hit the player during this dash
 }
 
 impl Default for BossSkills {
@@ -29,6 +30,7 @@ impl Default for BossSkills {
             dash_speed: 600.0,
             dash_damage: 25.0,
             dash_duration: Timer::from_seconds(0.8, TimerMode::Once),
+            has_hit_player: false,
         }
     }
 }
@@ -42,6 +44,7 @@ impl BossSkills {
             dash_speed,
             dash_damage: damage,
             dash_duration: Timer::from_seconds(0.8, TimerMode::Once),
+            has_hit_player: false,
         }
     }
 
@@ -55,6 +58,7 @@ impl BossSkills {
             self.dash_target = target;
             self.dash_duration.reset();
             self.dash_cooldown.reset();
+            self.has_hit_player = false; // Reset hit tracking for new dash
         }
     }
 
@@ -67,6 +71,14 @@ impl BossSkills {
             }
         }
         false
+    }
+    
+    pub fn can_hit_player(&self) -> bool {
+        self.is_dashing && !self.has_hit_player
+    }
+    
+    pub fn mark_player_hit(&mut self) {
+        self.has_hit_player = true;
     }
 }
 

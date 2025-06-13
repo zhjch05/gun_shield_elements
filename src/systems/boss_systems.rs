@@ -18,8 +18,13 @@ pub fn mine_boss_ai(
                 
                 // Dash if player is not too close (avoid dash when already very close)
                 if distance_to_player > 100.0 {
-                    skills.start_dash(player_transform.translation);
-                    info!("Mine boss starting dash towards player at distance: {:.1}", distance_to_player);
+                    // Calculate direction to player
+                    let direction = (player_transform.translation - boss_transform.translation).normalize_or_zero();
+                    let dash_distance = 300.0; // Constant dash distance
+                    let dash_target = boss_transform.translation + direction * dash_distance;
+                    
+                    skills.start_dash(dash_target);
+                    info!("Mine boss starting dash towards player at distance: {:.1}, dash distance: {:.1}", distance_to_player, dash_distance);
                 }
             }
         }
@@ -85,18 +90,19 @@ pub fn boss_rotation_animation(
 
 /// System to handle collision between boss and player
 pub fn boss_player_collision(
-    boss_query: Query<(&Transform, &BossSkills), (With<MineBoss>, Without<Player>)>,
+    mut boss_query: Query<(&Transform, &mut BossSkills), (With<MineBoss>, Without<Player>)>,
     mut player_query: Query<(&Transform, &mut Health), (With<Player>, Without<MineBoss>)>,
 ) {
     if let Ok((player_transform, mut player_health)) = player_query.single_mut() {
-        for (boss_transform, skills) in boss_query.iter() {
-            if skills.is_dashing {
+        for (boss_transform, mut skills) in boss_query.iter_mut() {
+            if skills.can_hit_player() {
                 let distance = boss_transform.translation.distance(player_transform.translation);
                 let collision_radius = 35.0; // Boss radius (30) + small buffer
                 
                 if distance < collision_radius {
-                    // Apply damage to player
+                    // Apply damage to player (only once per dash)
                     player_health.take_damage(skills.dash_damage);
+                    skills.mark_player_hit(); // Mark that we've hit the player this dash
                     info!("Mine boss hit player for {} damage! Player health: {:.1}/{:.1}", 
                         skills.dash_damage, player_health.current, player_health.max);
                     
