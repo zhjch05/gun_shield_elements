@@ -76,7 +76,7 @@ fn setup_debug_screen(mut commands: Commands) {
         TextColor(Color::WHITE),
         Node {
             position_type: PositionType::Absolute,
-            top: Val::Px(10.0),
+            bottom: Val::Px(10.0),
             left: Val::Px(10.0),
             ..default()
         },

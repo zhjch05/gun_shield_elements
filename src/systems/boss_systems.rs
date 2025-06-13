@@ -16,8 +16,8 @@ pub fn mine_boss_ai(
             if skills.can_dash() {
                 let distance_to_player = boss_transform.translation.distance(player_transform.translation);
                 
-                // Dash if player is within range (not too close, not too far)
-                if distance_to_player > 100.0 && distance_to_player < 400.0 {
+                // Dash if player is not too close (avoid dash when already very close)
+                if distance_to_player > 100.0 {
                     skills.start_dash(player_transform.translation);
                     info!("Mine boss starting dash towards player at distance: {:.1}", distance_to_player);
                 }
@@ -29,32 +29,43 @@ pub fn mine_boss_ai(
 /// System to handle boss dash movement and animation
 pub fn boss_dash_movement(
     mut boss_query: Query<(&mut Transform, &mut BossSkills, &mut RotationAnimation), With<MineBoss>>,
+    player_query: Query<&Transform, (With<Player>, Without<MineBoss>)>,
     time: Res<Time>,
 ) {
-    for (mut transform, mut skills, mut rotation) in boss_query.iter_mut() {
-        let delta = time.delta_secs();
-        
-        if skills.is_dashing {
-            // Start rotation animation during dash
-            if !rotation.enabled {
-                rotation.start();
-            }
+    if let Ok(player_transform) = player_query.single() {
+        for (mut transform, mut skills, mut rotation) in boss_query.iter_mut() {
+            let delta = time.delta_secs();
             
-            // Calculate direction and move towards target
-            let direction = (skills.dash_target - transform.translation).normalize_or_zero();
-            let move_distance = skills.dash_speed * delta;
-            
-            // Move towards target
-            transform.translation += direction * move_distance;
-            
-            // Check if dash is complete
-            if skills.update_dash(delta) {
-                info!("Mine boss dash completed");
+            if skills.is_dashing {
+                // Start rotation animation during dash
+                if !rotation.enabled {
+                    rotation.start();
+                }
+                
+                // Calculate direction and move towards target
+                let direction = (skills.dash_target - transform.translation).normalize_or_zero();
+                let move_distance = skills.dash_speed * delta;
+                
+                // Move towards target
+                transform.translation += direction * move_distance;
+                
+                // Check if dash is complete
+                if skills.update_dash(delta) {
+                    info!("Mine boss dash completed");
+                    rotation.stop();
+                }
+            } else {
+                // Constant slow movement toward player when not dashing
+                let direction = (player_transform.translation - transform.translation).normalize_or_zero();
+                let constant_speed = 50.0; // Slow constant movement speed
+                let move_distance = constant_speed * delta;
+                
+                // Move towards player
+                transform.translation += direction * move_distance;
+                
+                // Stop rotation when not dashing
                 rotation.stop();
             }
-        } else {
-            // Stop rotation when not dashing
-            rotation.stop();
         }
     }
 }
