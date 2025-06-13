@@ -33,7 +33,7 @@ impl Default for BossSkills {
             is_dashing: false,
             dash_target: Vec3::ZERO,
             dash_start_position: Vec3::ZERO,
-            dash_speed: 800.0,
+            dash_speed: 1200.0,
             dash_damage: 25.0,
             has_hit_player: false,
             dash_distance: 800.0, // Default dash distance
