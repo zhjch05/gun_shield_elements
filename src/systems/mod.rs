@@ -4,6 +4,7 @@ pub mod pause_systems;
 pub mod movement;
 pub mod camera;
 pub mod spawning;
+pub mod boss_systems;
 
 pub use menu_systems::*;
 pub use ui_systems::*;
@@ -11,3 +12,4 @@ pub use pause_systems::*;
 pub use movement::*;
 pub use camera::*;
 pub use spawning::*;
+pub use boss_systems::*;
