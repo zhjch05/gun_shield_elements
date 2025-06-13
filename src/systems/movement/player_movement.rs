@@ -54,7 +54,7 @@ pub fn player_movement(
             player_transform.translation += direction * move_distance;
             
             // Check if dash is complete
-            if dash.update_dash(player_transform.translation) {
+            if dash.update_dash(player_transform.translation, delta) {
                 info!("Player dash completed");
             }
         } else {

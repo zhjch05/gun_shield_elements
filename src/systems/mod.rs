@@ -7,6 +7,7 @@ pub mod spawning;
 pub mod boss_systems;
 pub mod ui;
 pub mod player_death;
+pub mod boundary;
 
 pub use menu_systems::*;
 pub use ui_systems::*;
@@ -17,3 +18,4 @@ pub use spawning::*;
 pub use boss_systems::*;
 pub use ui::*;
 pub use player_death::*;
+pub use boundary::*;

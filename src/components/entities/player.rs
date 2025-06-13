@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use crate::components::attributes::{Health, Speed, Collider, Energy, Invulnerability};
+use crate::components::boundary::BoundedMovement;
 
 /// Marker component for the player entity
 #[derive(Component, Debug)]
@@ -46,7 +47,7 @@ impl PlayerDash {
         self.dash_start_position = start_position;
     }
 
-    pub fn update_dash(&mut self, current_position: Vec3) -> bool {
+    pub fn update_dash(&mut self, current_position: Vec3, _delta_time: f32) -> bool {
         if self.is_dashing {
             // Check if we've traveled the full dash distance
             let distance_traveled = self.dash_start_position.distance(current_position);
@@ -166,6 +167,7 @@ pub struct PlayerBundle {
     pub collider: Collider,
     pub dash: PlayerDash,
     pub invulnerability: Invulnerability,
+    pub bounded_movement: BoundedMovement,
     pub transform: Transform,
     pub mesh: Mesh2d,
     pub material: MeshMaterial2d<ColorMaterial>,
@@ -187,6 +189,7 @@ impl PlayerBundle {
             collider: Collider::new(25.0), // Player radius
             dash: PlayerDash::default(),
             invulnerability: Invulnerability::new(),
+            bounded_movement: BoundedMovement,
             transform: Transform::from_translation(position),
             mesh: Mesh2d(mesh),
             material: MeshMaterial2d(material),

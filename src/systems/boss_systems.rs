@@ -53,8 +53,8 @@ pub fn boss_dash_movement(
                 // Move towards target
                 transform.translation += direction * move_distance;
                 
-                // Check if dash is complete (using current position)
-                if skills.update_dash(transform.translation) {
+                // Check if dash is complete (using current position and delta time)
+                if skills.update_dash(transform.translation, delta) {
                     info!("Mine boss dash completed");
                     rotation.stop();
                 }

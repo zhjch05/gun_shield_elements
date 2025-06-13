@@ -9,16 +9,17 @@ use crate::systems::{
     check_player_death, spawn_player, cleanup_player, cleanup_debug_entities,
     player_movement, player_face_mouse, camera_follow_player, manage_player_invulnerability,
     spawn_mine_boss, cleanup_boss_entities,
-    mine_boss_ai, boss_dash_movement, boss_rotation_animation, boss_player_collision
+    mine_boss_ai, boss_dash_movement, boss_rotation_animation, boss_player_collision,
+    spawn_boundary_visuals, enforce_boundaries, cleanup_boundary_visuals
 };
-use crate::constants::AppColors;
+
 
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_systems(OnEnter(AppState::Game), (setup_game_screen, spawn_health_bar, spawn_energy_bar, spawn_player, spawn_mine_boss))
+            .add_systems(OnEnter(AppState::Game), (setup_game_screen, spawn_boundary_visuals, spawn_health_bar, spawn_energy_bar, spawn_player, spawn_mine_boss))
             .add_systems(
                 Update,
                 (
@@ -33,6 +34,7 @@ impl Plugin for GamePlugin {
                         player_movement,
                         manage_player_invulnerability,
                         player_face_mouse,
+                        enforce_boundaries, // Apply boundary constraints after movement
                         camera_follow_player,
                     ).chain(),
                     mine_boss_ai,
@@ -54,6 +56,7 @@ impl Plugin for GamePlugin {
                 cleanup_player,
                 cleanup_boss_entities,
                 cleanup_debug_entities,
+                cleanup_boundary_visuals,
                 reset_pause_state,
             ));
     }
@@ -61,14 +64,14 @@ impl Plugin for GamePlugin {
 
 /// System to setup the game screen UI (completely empty)
 fn setup_game_screen(mut commands: Commands) {
-    // Empty game screen - no UI elements
+    // Empty game screen - no UI elements, background handled by boundary system
     commands.spawn((
         Node {
             width: Val::Percent(100.0),
             height: Val::Percent(100.0),
             ..default()
         },
-        BackgroundColor(AppColors::BACKGROUND),
+        BackgroundColor(Color::NONE), // Transparent - boundary system provides background
         GameUI,
     ));
 }

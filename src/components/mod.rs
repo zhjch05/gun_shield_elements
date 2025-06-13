@@ -1,7 +1,9 @@
 pub mod ui;
-pub mod attributes;
 pub mod entities;
+pub mod attributes;
+pub mod boundary;
 
 pub use ui::*;
-pub use attributes::*;
 pub use entities::*;
+pub use attributes::*;
+pub use boundary::*;
