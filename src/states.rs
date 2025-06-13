@@ -7,4 +7,5 @@ pub enum AppState {
     MainMenu,
     Game,
     Debug,
+    GameOver,
 }

@@ -1,12 +1,13 @@
 use bevy::prelude::*;
 use crate::states::AppState;
-use crate::components::{DebugUI, PauseOverlayUI, Player, MineBoss, BossSkills};
+use crate::components::{DebugUI, PauseOverlayUI, Player, MineBoss, BossSkills, HealthBarUI};
 use crate::systems::{
     cleanup_ui, handle_pause_input, update_pause_timer,
     spawn_pause_overlay, despawn_pause_overlay, handle_pause_buttons, button_hover_system,
     reset_pause_state, spawn_player, player_movement, player_face_mouse, camera_follow_player, cleanup_player, cleanup_debug_entities,
     handle_shield_input, animate_shield, update_shield_mesh, spawn_mine_boss, cleanup_boss_entities,
-    mine_boss_ai, boss_dash_movement, boss_rotation_animation, boss_player_collision
+    mine_boss_ai, boss_dash_movement, boss_rotation_animation, boss_player_collision,
+    spawn_health_bar, update_health_bar, update_health_bar_color, check_player_death
 };
 
 pub struct DebugPlugin;
@@ -14,7 +15,7 @@ pub struct DebugPlugin;
 impl Plugin for DebugPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_systems(OnEnter(AppState::Debug), (setup_debug_screen, spawn_player, spawn_mine_boss))
+            .add_systems(OnEnter(AppState::Debug), (setup_debug_screen, spawn_player, spawn_mine_boss, spawn_health_bar))
             .add_systems(
                 Update,
                 (
@@ -34,12 +35,16 @@ impl Plugin for DebugPlugin {
                     boss_dash_movement,
                     boss_rotation_animation,
                     boss_player_collision,
+                    update_health_bar,
+                    update_health_bar_color,
+                    check_player_death,
                     update_debug_info,
                 ).run_if(in_state(AppState::Debug)),
             )
             .add_systems(OnExit(AppState::Debug), (
                 cleanup_ui::<DebugUI>,
                 cleanup_ui::<PauseOverlayUI>,
+                cleanup_ui::<HealthBarUI>,
                 cleanup_player,
                 cleanup_boss_entities,
                 cleanup_debug_entities,

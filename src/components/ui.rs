@@ -35,3 +35,23 @@ pub enum PauseButton {
 /// Marker component for debug-specific entities that should be cleaned up on exit
 #[derive(Component)]
 pub struct DebugEntity;
+
+/// Marker component for health bar UI
+#[derive(Component)]
+pub struct HealthBarUI;
+
+/// Component for the health bar fill element
+#[derive(Component)]
+pub struct HealthBarFill;
+
+/// Marker component for game over UI
+#[derive(Component)]
+pub struct GameOverUI;
+
+/// Component to identify different game over buttons
+#[derive(Component)]
+pub enum GameOverButton {
+    RestartGame,
+    BackToMenu,
+    ExitToDesktop,
+}

@@ -8,7 +8,7 @@ mod resources;
 mod constants;
 
 use states::AppState;
-use plugins::{MenuPlugin, GamePlugin, DebugPlugin};
+use plugins::{MenuPlugin, GamePlugin, DebugPlugin, GameOverPlugin};
 use resources::PauseState;
 
 fn main() {
@@ -27,6 +27,7 @@ fn main() {
             MenuPlugin,
             GamePlugin,
             DebugPlugin,
+            GameOverPlugin,
         ))
         .run();
 }

@@ -5,6 +5,8 @@ pub mod movement;
 pub mod camera;
 pub mod spawning;
 pub mod boss_systems;
+pub mod ui;
+pub mod player_death;
 
 pub use menu_systems::*;
 pub use ui_systems::*;
@@ -13,3 +15,5 @@ pub use movement::*;
 pub use camera::*;
 pub use spawning::*;
 pub use boss_systems::*;
+pub use ui::*;
+pub use player_death::*;
