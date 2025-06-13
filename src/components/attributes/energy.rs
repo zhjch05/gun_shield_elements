@@ -34,10 +34,6 @@ impl Energy {
         self.current >= amount
     }
 
-    pub fn is_full(&self) -> bool {
-        self.current >= self.max
-    }
-
     pub fn percentage(&self) -> f32 {
         if self.max > 0.0 {
             self.current / self.max

@@ -36,18 +36,6 @@ impl Default for PlayerDash {
 }
 
 impl PlayerDash {
-    pub fn new(dash_speed: f32, dash_distance: f32, energy_cost: f32, invulnerability_percentage: f32) -> Self {
-        Self {
-            is_dashing: false,
-            dash_target: Vec3::ZERO,
-            dash_start_position: Vec3::ZERO,
-            dash_speed,
-            dash_distance,
-            energy_cost,
-            invulnerability_percentage: invulnerability_percentage.clamp(0.0, 1.0),
-        }
-    }
-
     pub fn can_dash(&self, energy: &Energy) -> bool {
         !self.is_dashing && energy.can_consume(self.energy_cost)
     }
