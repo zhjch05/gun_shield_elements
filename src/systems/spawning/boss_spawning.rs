@@ -23,7 +23,7 @@ pub fn spawn_mine_boss(
     // Spawn mine boss body
     let boss_entity = commands.spawn((
         MineBossBundle::new(
-            10.0,                      // max health
+            1000.0,                      // max health
             200.0,
             boss_position,
             body_mesh,
