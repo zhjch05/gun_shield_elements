@@ -9,7 +9,7 @@ pub fn weapon_firing_system(
     indicator_query: Query<&GlobalTransform, (With<crate::components::DirectionIndicator>, Without<Player>)>,
     window_query: Query<&Window>,
     camera_query: Query<(&Camera, &GlobalTransform)>,
-    time: Res<Time>,
+    time: Res<Time<Virtual>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
@@ -62,7 +62,7 @@ pub fn weapon_firing_system(
 /// System to move projectiles
 pub fn projectile_movement_system(
     mut projectile_query: Query<(&mut Transform, &Projectile, &Speed)>,
-    time: Res<Time>,
+    time: Res<Time<Virtual>>,
 ) {
     for (mut transform, projectile, speed) in projectile_query.iter_mut() {
         let movement = projectile.direction * speed.value * time.delta_secs();
@@ -74,7 +74,7 @@ pub fn projectile_movement_system(
 pub fn projectile_lifetime_system(
     mut commands: Commands,
     mut projectile_query: Query<(Entity, &mut Projectile)>,
-    time: Res<Time>,
+    time: Res<Time<Virtual>>,
 ) {
     for (entity, mut projectile) in projectile_query.iter_mut() {
         if projectile.update(time.delta()) {

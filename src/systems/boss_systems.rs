@@ -5,7 +5,7 @@ use crate::components::{Boss, MineBoss, BossSkills, RotationAnimation, Player, H
 pub fn mine_boss_ai(
     mut boss_query: Query<(&mut BossSkills, &Transform), (With<MineBoss>, Without<Player>)>,
     player_query: Query<&Transform, (With<Player>, Without<MineBoss>)>,
-    time: Res<Time>,
+    time: Res<Time<Virtual>>,
 ) {
     if let Ok(player_transform) = player_query.single() {
         for (mut skills, boss_transform) in boss_query.iter_mut() {
@@ -34,7 +34,7 @@ pub fn mine_boss_ai(
 pub fn boss_dash_movement(
     mut boss_query: Query<(&mut Transform, &mut BossSkills, &mut RotationAnimation, &Speed), With<MineBoss>>,
     player_query: Query<&Transform, (With<Player>, Without<MineBoss>)>,
-    time: Res<Time>,
+    time: Res<Time<Virtual>>,
 ) {
     if let Ok(player_transform) = player_query.single() {
         for (mut transform, mut skills, mut rotation, speed) in boss_query.iter_mut() {
@@ -76,7 +76,7 @@ pub fn boss_dash_movement(
 /// System to handle rotation animation
 pub fn boss_rotation_animation(
     mut boss_query: Query<(&mut Transform, &RotationAnimation), With<Boss>>,
-    time: Res<Time>,
+    time: Res<Time<Virtual>>,
 ) {
     for (mut transform, rotation) in boss_query.iter_mut() {
         if rotation.enabled {
@@ -160,7 +160,7 @@ pub fn boss_collision_damage(
     mut player_query: Query<(&Transform, &mut Health, &Collider, &Invulnerability), (With<Player>, Without<MineBoss>)>,
     shield_query: Query<&Shield>,
     indicator_query: Query<&Transform, (With<DirectionIndicator>, Without<Player>, Without<MineBoss>)>,
-    time: Res<Time>,
+    time: Res<Time<Virtual>>,
 ) {
     if let Ok((player_transform, mut player_health, player_collider, player_invulnerability)) = player_query.single_mut() {
         for (boss_transform, skills, mut collision_damage, boss_collider) in boss_query.iter_mut() {

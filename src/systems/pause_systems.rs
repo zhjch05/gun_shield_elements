@@ -4,9 +4,11 @@ use crate::resources::PauseState;
 use crate::states::AppState;
 use crate::systems::create_button_with_component;
 
+
 /// System to handle pause input (ESC key)
 pub fn handle_pause_input(
     mut pause_state: ResMut<PauseState>,
+    mut virtual_time: ResMut<Time<Virtual>>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     current_state: Res<State<AppState>>,
 ) {
@@ -14,13 +16,22 @@ pub fn handle_pause_input(
     let can_pause = matches!(*current_state.get(), AppState::Game | AppState::Debug);
     if can_pause && keyboard_input.just_pressed(KeyCode::Escape) {
         pause_state.toggle();
+        
+        // Pause or unpause virtual time based on pause state
+        if pause_state.is_paused {
+            virtual_time.pause();
+            info!("Game paused - virtual time stopped");
+        } else {
+            virtual_time.unpause();
+            info!("Game resumed - virtual time running");
+        }
     }
 }
 
-/// System to update pause timer
+/// System to update pause timer using real time (not virtual time)
 pub fn update_pause_timer(
     mut pause_state: ResMut<PauseState>,
-    time: Res<Time>,
+    time: Res<Time<Real>>,
 ) {
     if pause_state.is_paused {
         pause_state.pause_timer.tick(time.delta());
@@ -106,6 +117,7 @@ pub fn handle_pause_buttons(
         (Changed<Interaction>, With<Button>),
     >,
     mut pause_state: ResMut<PauseState>,
+    mut virtual_time: ResMut<Time<Virtual>>,
     mut next_state: ResMut<NextState<AppState>>,
     mut exit: EventWriter<AppExit>,
 ) {
@@ -114,10 +126,14 @@ pub fn handle_pause_buttons(
             match pause_button {
                 PauseButton::Resume => {
                     pause_state.resume();
+                    virtual_time.unpause();
+                    info!("Game resumed via menu - virtual time running");
                 }
                 PauseButton::BackToMenu => {
                     pause_state.resume();
+                    virtual_time.unpause();
                     next_state.set(AppState::MainMenu);
+                    info!("Returning to main menu - virtual time running");
                 }
                 PauseButton::ExitToDesktop => {
                     exit.write(AppExit::Success);
@@ -128,6 +144,11 @@ pub fn handle_pause_buttons(
 }
 
 /// System to reset pause state when exiting game
-pub fn reset_pause_state(mut pause_state: ResMut<PauseState>) {
+pub fn reset_pause_state(
+    mut pause_state: ResMut<PauseState>,
+    mut virtual_time: ResMut<Time<Virtual>>,
+) {
     pause_state.resume();
+    virtual_time.unpause();
+    info!("Pause state reset - virtual time running");
 }

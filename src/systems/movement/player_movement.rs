@@ -6,7 +6,7 @@ pub fn player_movement(
     mut player_query: Query<(&mut Transform, &mut PlayerDash, &mut Energy), (With<Player>, Without<DirectionIndicator>)>,
     shield_query: Query<&Shield>,
     input: Res<ButtonInput<KeyCode>>,
-    time: Res<Time>,
+    time: Res<Time<Virtual>>,
 ) {
     for (mut player_transform, mut dash, mut energy) in &mut player_query {
         let delta = time.delta_secs();

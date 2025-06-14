@@ -38,7 +38,7 @@ pub fn handle_shield_input(
 
 /// System to animate shield growth/shrinkage and handle energy consumption
 pub fn animate_shield(
-    time: Res<Time>,
+    time: Res<Time<Virtual>>,
     mut shield_query: Query<&mut Shield>,
     mut energy_query: Query<&mut Energy, With<Player>>,
     mut indicator_query: Query<&mut Visibility, With<DirectionIndicator>>,
